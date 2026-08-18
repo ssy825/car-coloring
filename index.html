@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d0f14">
+  <meta name="description" content="태블릿과 S-Pen에 최적화된 프리미엄 자동차 색칠 웹 애플리케이션">
+  <title>자동차 색칠 스튜디오 (Car Coloring Studio)</title>
+
+  <!-- Favicon (SVG Car Icon) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>🏎️</text></svg>">
+
+  <!-- 스타일시트 로드 -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/toolbar.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- 상단 헤더 툴바 -->
+    <header class="top-header">
+      <div class="brand-area">
+        <div class="brand-logo">
+          <span class="logo-icon">🏎️</span>
+          <span>CAR STUDIO</span>
+          <span class="brand-badge">PRO</span>
+        </div>
+      </div>
+
+      <!-- 현재 도안 내비게이션 -->
+      <div class="current-car-info-bar">
+        <button class="nav-arrow-btn" id="btn-prev-car" title="이전 자동차">◀</button>
+        <div class="car-title-group" id="btn-cars-modal" title="전체 자동차 도안 보기">
+          <h2 id="current-car-name">람보르기니 SVJ</h2>
+          <span class="car-badge supercar" id="current-car-category">슈퍼카</span>
+          <span class="car-count-badge" id="current-car-count">1 / 13</span>
+        </div>
+        <button class="nav-arrow-btn" id="btn-next-car" title="다음 자동차">▶</button>
+      </div>
+
+      <!-- S-Pen 상태 알림 배지 -->
+      <div class="spen-badge" id="spen-status-badge">
+        <span>✏️ S-Pen 대기중</span>
+      </div>
+
+      <!-- 우측 기능 버튼들 -->
+      <div class="header-actions">
+        <button class="icon-btn" id="btn-undo" title="실행 취소 (Ctrl+Z / 두 손가락 탭)" disabled>↩</button>
+        <button class="icon-btn" id="btn-redo" title="다시 실행 (Ctrl+Y / 세 손가락 탭)" disabled>↪</button>
+        <button class="icon-btn" id="btn-clear" title="색칠 초기화">🗑️</button>
+        <button class="icon-btn" id="btn-sound" title="사운드 On/Off">🔊</button>
+        <button class="icon-btn" id="btn-fullscreen" title="전체화면 모드">⛶</button>
+        <button class="icon-btn" id="btn-help" title="도움말 & S-Pen 가이드">❓</button>
+        <button class="primary-btn" id="btn-export-modal">
+          <span>💾</span>
+          <span>저장 / 내보내기</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 중앙 작업 공간 -->
+    <main class="studio-body">
+      <!-- 좌측 도구 툴바 -->
+      <aside class="left-sidebar">
+        <button class="tool-btn active" data-tool="fill" title="스마트 페인트통 채우기 (F)">
+          <span class="tool-icon">🪣</span>
+          <span class="tool-label">페인트</span>
+        </button>
+
+        <button class="tool-btn" data-tool="brush" title="브러시 드로잉 (B)">
+          <span class="tool-icon">🖌️</span>
+          <span class="tool-label">브러시</span>
+        </button>
+
+        <button class="tool-btn" data-tool="eraser" title="지우개 (E - S-Pen 버튼으로도 동작)">
+          <span class="tool-icon">🧹</span>
+          <span class="tool-label">지우개</span>
+        </button>
+
+        <div class="tool-divider"></div>
+
+        <button class="tool-btn" data-tool="eyedropper" title="스포이드 색상 추출 (I)">
+          <span class="tool-icon">🎯</span>
+          <span class="tool-label">스포이드</span>
+        </button>
+
+        <button class="tool-btn" data-tool="sticker" title="데칼 & 스티커 스탬프">
+          <span class="tool-icon">⭐</span>
+          <span class="tool-label">스티커</span>
+        </button>
+      </aside>
+
+      <!-- 중앙 캔버스 뷰포트 -->
+      <section class="canvas-viewport-container">
+        <div id="canvas-viewport"></div>
+
+        <!-- 캔버스 플로팅 줌 컨트롤 -->
+        <div class="floating-zoom-control">
+          <button class="zoom-btn" id="btn-zoom-out" title="축소">−</button>
+          <span class="zoom-level-label" id="zoom-level-text">100%</span>
+          <button class="zoom-btn" id="btn-zoom-in" title="확대">+</button>
+          <button class="zoom-btn" id="btn-zoom-reset" title="화면 맞춤">⟲</button>
+        </div>
+      </section>
+
+      <!-- 우측 설정 & 팔레트 사이드바 -->
+      <aside class="right-sidebar">
+        <!-- 브러시 종류 & 세부 옵션 패널 (브러시/지우개 선택 시 노출) -->
+        <div class="panel-section hidden" id="brush-settings-panel">
+          <div class="panel-title">브러시 종류</div>
+          <div class="brush-types-grid" id="brush-types-container"></div>
+
+          <div class="slider-group" style="margin-top: 10px;">
+            <div class="slider-header">
+              <span>브러시 굵기</span>
+              <span class="slider-val" id="brush-size-value">18px</span>
+            </div>
+            <input type="range" id="brush-size-slider" min="2" max="80" value="18">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>불투명도</span>
+              <span class="slider-val" id="brush-opacity-value">100%</span>
+            </div>
+            <input type="range" id="brush-opacity-slider" min="5" max="100" value="100">
+          </div>
+        </div>
+
+        <!-- 스티커 선택 패널 -->
+        <div class="panel-section hidden" id="stickers-panel">
+          <div class="panel-title">커스텀 데칼 스티커</div>
+          <div class="stickers-grid" id="stickers-list"></div>
+        </div>
+
+        <!-- 컬러 팔레트 섹션 -->
+        <div class="panel-section">
+          <div class="panel-title">테마별 팔레트</div>
+          <div class="palette-tabs-container" id="palette-theme-tabs"></div>
+          <div class="colors-grid" id="palette-colors-grid"></div>
+        </div>
+
+        <!-- 커스텀 컬러 피커 & 프리뷰 -->
+        <div class="panel-section">
+          <div class="panel-title">커스텀 색상</div>
+          <div class="custom-color-bar">
+            <div class="active-color-preview-box" id="active-color-preview"></div>
+            <div class="custom-picker-btn-wrap">
+              <input type="color" id="custom-color-input" value="#ff2d55">
+              <div class="picker-fake-btn">
+                <span>🎨 직접 색상 선택</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 최근 사용한 색상 -->
+        <div class="panel-section">
+          <div class="panel-title">최근 사용한 색상</div>
+          <div class="recent-colors-grid" id="recent-colors-grid"></div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- 모달 1: 자동차 도안 선택 갤러리 -->
+    <div class="modal-container" id="cars-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>🏎️ 자동차 도안 갤러리</h3>
+          <button class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="category-filter-tabs" id="gallery-category-tabs"></div>
+          <div class="cars-gallery-grid" id="cars-gallery-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 모달 2: 저장 및 내보내기 모달 -->
+    <div class="modal-container" id="export-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog" style="max-width: 760px;">
+        <div class="modal-header">
+          <h3>💾 작품 저장 및 내보내기</h3>
+          <button class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="export-content">
+            <div class="export-preview-box">
+              <img id="export-preview-image" src="" alt="작품 미리보기">
+            </div>
+            <div class="export-options-box">
+              <div class="panel-title">배경 스타일 선택</div>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="export-bg" value="white" checked>
+                  <span>화이트 배경</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="export-bg" value="studio">
+                  <span>스튜디오 그라데이션</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="export-bg" value="transparent">
+                  <span>투명 배경 (PNG)</span>
+                </label>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+                <button class="primary-btn" id="btn-download-png" style="justify-content: center; width: 100%;">
+                  <span>📥</span>
+                  <span>고화질 PNG 다운로드</span>
+                </button>
+                <button class="icon-btn" id="btn-print-art" style="width: 100%; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 600; gap: 6px;">
+                  <span>🖨️</span>
+                  <span>프린터 인쇄</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 모달 3: S-Pen 및 제스처 도움말 모달 -->
+    <div class="modal-container" id="help-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-dialog" style="max-width: 680px;">
+        <div class="modal-header">
+          <h3>💡 S-Pen & 태블릿 제스처 가이드</h3>
+          <button class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="help-grid">
+            <div class="help-card">
+              <div class="help-card-title">
+                <span>🖊️</span>
+                <span>S-Pen 사이드 버튼 지우개</span>
+              </div>
+              <div class="help-card-body">
+                S-Pen의 <span class="help-highlight">측면 버튼</span>을 누른 채 화면을 문지르면 즉시 <span class="help-highlight">지우개</span>로 동작합니다. 버튼에서 손을 떼면 원래 선택된 도구로 자동 복귀합니다.
+              </div>
+            </div>
+
+            <div class="help-card">
+              <div class="help-card-title">
+                <span>🖐️</span>
+                <span>팜 리젝션 (손바닥 방지)</span>
+              </div>
+              <div class="help-card-body">
+                S-Pen으로 그리는 중에는 손바닥이 화면에 닿아도 그림이 그려지지 않아 편안하게 손을 올려놓고 채색할 수 있습니다.
+              </div>
+            </div>
+
+            <div class="help-card">
+              <div class="help-card-title">
+                <span>🔍</span>
+                <span>핀치 줌 & 패닝</span>
+              </div>
+              <div class="help-card-body">
+                <span class="help-highlight">두 손가락</span>으로 화면을 벌리거나 오므려 확대/축소하고, 드래그하여 원하는 위치로 자유롭게 이동할 수 있습니다.
+              </div>
+            </div>
+
+            <div class="help-card">
+              <div class="help-card-title">
+                <span>↩️</span>
+                <span>터치 탭 단축 제스처</span>
+              </div>
+              <div class="help-card-body">
+                • <span class="help-highlight">두 손가락 더블 탭</span>: 실행 취소 (Undo)<br>
+                • <span class="help-highlight">세 손가락 탭</span>: 다시 실행 (Redo)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메인 스크립트 로드 (ES Module) -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
