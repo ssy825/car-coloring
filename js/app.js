@@ -69,12 +69,11 @@ class CarColoringApp {
     this.btnZoomReset = document.getElementById('btn-zoom-reset');
     this.zoomLevelText = document.getElementById('zoom-level-text');
 
-    // 모달 및 도움말 / S-Pen 요소
+    // 모달 및 도움말 요소
     this.carsModal = document.getElementById('cars-modal');
     this.exportModal = document.getElementById('export-modal');
     this.helpModal = document.getElementById('help-modal');
     this.btnHelp = document.getElementById('btn-help');
-    this.spenBadge = document.getElementById('spen-status-badge');
   }
 
   initPalette() {
@@ -114,31 +113,11 @@ class CarColoringApp {
       },
       onZoomChange: zoomPercent => {
         this.zoomLevelText.textContent = `${zoomPercent}%`;
-      },
-      onSPenStateChange: state => {
-        this.updateSPenBadge(state);
       }
     });
 
     // 초기 색상 설정
     this.palette.setColor('#ff2d55', false);
-  }
-
-  updateSPenBadge(state) {
-    if (!this.spenBadge) return;
-
-    if (state.isPen) {
-      this.spenBadge.classList.add('active');
-      if (state.isDrawing) {
-        const pPercent = Math.round((state.pressure || 0.5) * 100);
-        this.spenBadge.innerHTML = `<span>✏️ S-Pen 필압 드로잉 (${pPercent}%)</span>`;
-      } else {
-        this.spenBadge.innerHTML = '<span>✏️ S-Pen 연결됨 (호버)</span>';
-      }
-    } else {
-      this.spenBadge.classList.remove('active');
-      this.spenBadge.innerHTML = '<span>✏️ S-Pen 대기중</span>';
-    }
   }
 
   async loadCarByIndex(index) {
