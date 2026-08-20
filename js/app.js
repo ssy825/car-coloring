@@ -124,7 +124,9 @@ class CarColoringApp {
     const car = CARS_DATA[index];
 
     this.carTitle.textContent = car.name;
-    this.carCategory.textContent = car.categoryName;
+    if (this.carCategory) {
+      this.carCategory.textContent = car.categoryName;
+    }
     this.carCount.textContent = `${index + 1} / ${CARS_DATA.length}`;
 
     await this.canvasEngine.loadCar(car);
@@ -165,7 +167,6 @@ class CarColoringApp {
       card.innerHTML = `
         <div class="car-card-img-wrap">
           <img src="${car.image}" alt="${car.name}" loading="lazy" />
-          <span class="car-badge ${car.category}">${car.categoryName}</span>
         </div>
         <div class="car-card-info">
           <h4>${car.name}</h4>
