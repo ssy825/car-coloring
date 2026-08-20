@@ -1,9 +1,8 @@
-// 메인 애플리케이션 진입점 및 컨트롤러
-
 import { CARS_DATA, CATEGORIES } from './cars-data.js';
 import { CanvasEngine } from './canvas-engine.js';
 import { PaletteManager, THEME_PALETTES } from './palette.js';
 import { BRUSH_TYPES, brushEngine } from './brushes.js';
+import { storageManager } from './storage.js';
 
 const BRUSH_SIZE_CONFIG = {
   '4': { label: 'XS (4px)', size: 4 },
@@ -16,6 +15,8 @@ const BRUSH_SIZE_CONFIG = {
 class CarColoringApp {
   constructor() {
     this.currentCarIndex = 0;
+    this.currentFilterCategory = 'all';
+    this.allWorksMeta = {};
     this.init();
   }
 
@@ -23,8 +24,9 @@ class CarColoringApp {
     this.cacheElements();
     this.initPalette();
     this.initCanvasEngine();
-    this.renderCategoryTabs();
-    this.renderCarGallery();
+    await this.refreshStorageMeta();
+    await this.renderCategoryTabs();
+    await this.renderCarGallery();
     this.renderBrushTypes();
     this.bindEvents();
 
@@ -118,8 +120,15 @@ class CarColoringApp {
     this.palette.setColor('#ff2d55', false);
   }
 
+  async refreshStorageMeta() {
+    this.allWorksMeta = await storageManager.getAllWorksMeta();
+  }
+
   async loadCarByIndex(index) {
     if (index < 0 || index >= CARS_DATA.length) return;
+    if (this.canvasEngine && this.canvasEngine.currentCar) {
+      await this.canvasEngine.autoSave();
+    }
     this.currentCarIndex = index;
     const car = CARS_DATA[index];
 
@@ -132,41 +141,126 @@ class CarColoringApp {
     await this.canvasEngine.loadCar(car);
   }
 
-  renderCategoryTabs() {
+  async renderCategoryTabs() {
     const container = document.getElementById('gallery-category-tabs');
+    if (!container) return;
     container.innerHTML = '';
 
+    await this.refreshStorageMeta();
+    const inProgressCount = Object.keys(this.allWorksMeta).filter(id => this.allWorksMeta[id]?.hasDrawing).length;
+
+    const tabList = [];
+    if (inProgressCount > 0) {
+      tabList.push({
+        id: 'in_progress',
+        name: '작업 중',
+        icon: '🎨',
+        count: inProgressCount,
+        isSpecial: true
+      });
+    }
+
     CATEGORIES.forEach(cat => {
+      tabList.push({
+        ...cat,
+        count: cat.id === 'all' ? CARS_DATA.length : CARS_DATA.filter(c => c.category === cat.id).length
+      });
+    });
+
+    if (this.currentFilterCategory === 'in_progress' && inProgressCount === 0) {
+      this.currentFilterCategory = 'all';
+    }
+
+    tabList.forEach(cat => {
       const btn = document.createElement('button');
-      btn.className = `cat-tab-btn ${cat.id === 'all' ? 'active' : ''}`;
+      const isActive = (cat.id === this.currentFilterCategory);
+      btn.className = `cat-tab-btn ${isActive ? 'active' : ''}`;
       btn.dataset.category = cat.id;
-      btn.innerHTML = `
-        <span class="cat-tab-img-wrap">
-          <img src="${cat.image}" alt="${cat.name}" loading="lazy" />
-        </span>
-        <span class="cat-tab-name">${cat.name}</span>
-      `;
-      btn.addEventListener('click', () => {
+
+      if (cat.isSpecial) {
+        btn.innerHTML = `
+          <span class="cat-tab-icon" style="font-size: 1.1rem; line-height: 1;">${cat.icon}</span>
+          <span class="cat-tab-name">${cat.name}</span>
+          <span class="cat-tab-badge">${cat.count}</span>
+        `;
+      } else {
+        btn.innerHTML = `
+          <span class="cat-tab-img-wrap">
+            <img src="${cat.image}" alt="${cat.name}" loading="lazy" />
+          </span>
+          <span class="cat-tab-name">${cat.name}</span>
+        `;
+      }
+
+      btn.addEventListener('click', async () => {
         container.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.filterCarGallery(cat.id);
+        this.currentFilterCategory = cat.id;
+        await this.renderCarGallery(cat.id);
       });
+
       container.appendChild(btn);
     });
   }
 
-  renderCarGallery(filterCat = 'all') {
+  async renderCarGallery(filterCat = this.currentFilterCategory) {
+    this.currentFilterCategory = filterCat;
     const gallery = document.getElementById('cars-gallery-grid');
+    if (!gallery) return;
     gallery.innerHTML = '';
 
-    CARS_DATA.forEach((car, idx) => {
-      if (filterCat !== 'all' && car.category !== filterCat) return;
+    await this.refreshStorageMeta();
+
+    let filteredCars = [];
+    if (filterCat === 'in_progress') {
+      filteredCars = CARS_DATA.filter(car => this.allWorksMeta[car.id]?.hasDrawing);
+    } else if (filterCat !== 'all') {
+      filteredCars = CARS_DATA.filter(car => car.category === filterCat);
+    } else {
+      filteredCars = CARS_DATA;
+    }
+
+    if (filterCat === 'in_progress' && filteredCars.length === 0) {
+      gallery.innerHTML = `
+        <div class="gallery-empty-state">
+          <span class="empty-icon">🎨</span>
+          <h4>현재 색칠 중인 도안이 없습니다</h4>
+          <p>원하는 자동차 도안을 골라 채색을 시작해보세요.<br>작업 중인 도안은 언제든 이곳에 자동으로 안전하게 보관됩니다.</p>
+        </div>
+      `;
+      return;
+    }
+
+    filteredCars.forEach(car => {
+      const originalIdx = CARS_DATA.findIndex(c => c.id === car.id);
+      const meta = this.allWorksMeta[car.id];
+      const isInProgress = !!(meta && meta.hasDrawing);
+      const displayImage = (isInProgress && meta.thumbDataUrl) ? meta.thumbDataUrl : car.image;
+      const isCurrentCar = (originalIdx === this.currentCarIndex);
 
       const card = document.createElement('div');
-      card.className = `car-card ${idx === this.currentCarIndex ? 'selected' : ''}`;
+      card.className = `car-card ${isCurrentCar ? 'selected' : ''} ${isInProgress ? 'in-progress' : ''}`;
       card.innerHTML = `
         <div class="car-card-img-wrap">
-          <img src="${car.image}" alt="${car.name}" loading="lazy" />
+          <img src="${displayImage}" alt="${car.name}" loading="lazy" />
+          ${isInProgress ? `
+            <div class="in-progress-badge" title="최근 수정: ${storageManager.formatRelativeTime(meta.updatedAt)}">
+              <span class="pulse-dot"></span>
+              <span class="badge-text">색칠 중</span>
+              <span class="time-text">${storageManager.formatRelativeTime(meta.updatedAt)}</span>
+            </div>
+          ` : ''}
+          <span class="car-badge ${car.category}">${car.categoryName}</span>
+          ${isInProgress ? `
+            <div class="card-hover-actions">
+              <button class="card-action-btn resume" data-index="${originalIdx}">
+                <span>▶</span> <span>이어 그리기</span>
+              </button>
+              <button class="card-action-btn delete" data-car-id="${car.id}" data-car-name="${car.name}" title="작업 삭제 및 초기화">
+                <span>🗑️</span>
+              </button>
+            </div>
+          ` : ''}
         </div>
         <div class="car-card-info">
           <h4>${car.name}</h4>
@@ -175,17 +269,39 @@ class CarColoringApp {
         </div>
       `;
 
-      card.addEventListener('click', async () => {
+      // 카드 전체 클릭 시 도안 로드
+      card.addEventListener('click', async e => {
+        if (e.target.closest('.card-action-btn.delete')) {
+          return;
+        }
         this.closeModal(this.carsModal);
-        await this.loadCarByIndex(idx);
+        await this.loadCarByIndex(originalIdx);
       });
+
+      // 삭제 버튼 이벤트
+      const deleteBtn = card.querySelector('.card-action-btn.delete');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', async e => {
+          e.stopPropagation();
+          const carName = deleteBtn.dataset.carName;
+          const carId = deleteBtn.dataset.carId;
+          if (confirm(`'${carName}' 도안의 채색 내용을 삭제하고 초기화하시겠습니까?`)) {
+            await storageManager.deleteCarWork(carId);
+            if (this.currentCarIndex === originalIdx) {
+              await this.canvasEngine.clearPaint();
+            }
+            await this.renderCategoryTabs();
+            await this.renderCarGallery(this.currentFilterCategory);
+          }
+        });
+      }
 
       gallery.appendChild(card);
     });
   }
 
-  filterCarGallery(catId) {
-    this.renderCarGallery(catId);
+  async filterCarGallery(catId) {
+    await this.renderCarGallery(catId);
   }
 
   renderBrushTypes() {
@@ -431,7 +547,7 @@ class CarColoringApp {
     });
 
     // 모달 열기/닫기
-    this.btnCarsModal.addEventListener('click', () => this.openModal(this.carsModal));
+    this.btnCarsModal.addEventListener('click', () => this.openCarsModal());
     this.btnExportModal.addEventListener('click', () => this.openExportModal());
     this.btnHelp.addEventListener('click', () => this.openModal(this.helpModal));
 
@@ -476,6 +592,15 @@ class CarColoringApp {
         this.toggleSidebar();
       }
     });
+  }
+
+  async openCarsModal() {
+    if (this.canvasEngine && this.canvasEngine.currentCar) {
+      await this.canvasEngine.autoSave();
+    }
+    await this.renderCategoryTabs();
+    await this.renderCarGallery(this.currentFilterCategory);
+    this.openModal(this.carsModal);
   }
 
   openModal(modal) {

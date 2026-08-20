@@ -2,6 +2,7 @@
 
 import { performSmartFloodFill } from './flood-fill.js';
 import { brushEngine, BRUSH_TYPES } from './brushes.js';
+import { storageManager } from './storage.js';
 
 export class CanvasEngine {
   constructor(container, options = {}) {
@@ -153,7 +154,7 @@ export class CanvasEngine {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.onload = () => {
+      img.onload = async () => {
         this.lineArtImage = img;
         this.lineCtx.clearRect(0, 0, this.width, this.height);
 
@@ -166,8 +167,8 @@ export class CanvasEngine {
 
         this.lineCtx.drawImage(img, drawX, drawY, drawW, drawH);
 
-        // 저장된 로컬스토리지 작업 복원 시도
-        this.loadSavedProgress(car.id);
+        // 저장된 스토리지 작업 복원 시도
+        await this.loadSavedProgress(car.id);
 
         // 초기 상태 히스토리 저장
         this.history = [];
@@ -277,6 +278,20 @@ export class CanvasEngine {
 
     // 컨텍스트 메뉴(우클릭) 방지 (S-Pen 버튼 클릭 호환)
     el.addEventListener('contextmenu', e => e.preventDefault());
+
+    // 브라우저 탭 닫기, 새로고침, 이탈, 숨김 시 즉시 자동 저장
+    const handleExitSave = () => {
+      if (this.currentCar && this.paintCanvas) {
+        storageManager.saveCarWork(this.currentCar.id, this.paintCanvas, this.lineCanvas);
+      }
+    };
+    window.addEventListener('beforeunload', handleExitSave);
+    window.addEventListener('pagehide', handleExitSave);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        handleExitSave();
+      }
+    });
   }
 
   getEffectiveTool() {
@@ -615,8 +630,11 @@ export class CanvasEngine {
   /**
    * 채색 초기화
    */
-  clearPaint() {
+  async clearPaint() {
     this.paintCtx.clearRect(0, 0, this.width, this.height);
+    if (this.currentCar) {
+      await storageManager.deleteCarWork(this.currentCar.id);
+    }
     this.saveHistory();
   }
 
@@ -628,32 +646,36 @@ export class CanvasEngine {
   }
 
   /**
-   * 자동 저장 및 복원 (LocalStorage)
+   * 자동 저장 및 복원 (IndexedDB & LocalStorage)
    */
-  autoSave() {
+  async autoSave() {
     if (!this.currentCar) return;
     try {
-      const dataUrl = this.paintCanvas.toDataURL('image/png');
-      localStorage.setItem(`car_art_${this.currentCar.id}`, dataUrl);
+      await storageManager.saveCarWork(this.currentCar.id, this.paintCanvas, this.lineCanvas);
     } catch (e) {
-      console.warn('AutoSave failed (quota exceeded?):', e);
+      console.warn('AutoSave failed:', e);
     }
   }
 
-  loadSavedProgress(carId) {
+  async loadSavedProgress(carId) {
     try {
-      const saved = localStorage.getItem(`car_art_${carId}`);
-      if (saved) {
-        const img = new Image();
-        img.onload = () => {
-          this.paintCtx.drawImage(img, 0, 0);
-          this.saveHistory();
-        };
-        img.src = saved;
+      const saved = await storageManager.loadCarWork(carId);
+      if (saved && (saved.fullDataUrl || saved.thumbDataUrl)) {
+        return new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => {
+            this.paintCtx.clearRect(0, 0, this.width, this.height);
+            this.paintCtx.drawImage(img, 0, 0);
+            resolve(true);
+          };
+          img.onerror = () => resolve(false);
+          img.src = saved.fullDataUrl || saved.thumbDataUrl;
+        });
       }
     } catch (e) {
       console.warn('Failed to load saved art:', e);
     }
+    return false;
   }
 
   /**

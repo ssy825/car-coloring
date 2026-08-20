@@ -165,6 +165,22 @@
   color: #0d0f14;
 }
 
+.cat-tab-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  margin-left: 4px;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.cat-tab-btn.active .cat-tab-badge {
+  background: #0d0f14;
+  color: var(--accent);
+}
+
 /* 자동차 카드 그리드 */
 .cars-gallery-grid {
   display: grid;
@@ -172,7 +188,40 @@
   gap: 16px;
 }
 
+.gallery-empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-glass);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.gallery-empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 16px var(--primary-glow));
+}
+
+.gallery-empty-state h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.gallery-empty-state p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .car-card {
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
@@ -190,8 +239,17 @@
 }
 
 .car-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 16px var(--primary-glow);
+}
+
+.car-card.in-progress {
+  border-color: rgba(255, 45, 85, 0.4);
+}
+
+.car-card.in-progress:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 16px var(--accent-glow);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 14px var(--accent-glow);
 }
 
 .car-card-img-wrap {
@@ -216,6 +274,121 @@
   transform: scale(1.05);
 }
 
+/* 작업 중 상태 뱃지 */
+.in-progress-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  background: rgba(13, 15, 20, 0.88);
+  border: 1px solid rgba(255, 45, 85, 0.5);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 45, 85, 0.25);
+  z-index: 2;
+}
+
+.in-progress-badge .pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff2d55;
+  box-shadow: 0 0 8px #ff2d55;
+  animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.65;
+  }
+}
+
+.in-progress-badge .badge-text {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #ff5277;
+  letter-spacing: -0.2px;
+}
+
+.in-progress-badge .time-text {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding-left: 3px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 카드 호버 액션 오버레이 */
+.card-hover-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(to top, rgba(13, 15, 20, 0.95) 0%, rgba(13, 15, 20, 0.6) 70%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 3;
+}
+
+.car-card:hover .card-hover-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card-action-btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition-fast);
+}
+
+.card-action-btn.resume {
+  background: linear-gradient(135deg, var(--primary), #00b4d8);
+  color: #0d0f14;
+  flex: 1;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 240, 255, 0.3);
+}
+
+.card-action-btn.resume:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+.card-action-btn.delete {
+  background: rgba(255, 45, 85, 0.18);
+  color: #ff5277;
+  border: 1px solid rgba(255, 45, 85, 0.35);
+  padding: 5px 8px;
+}
+
+.card-action-btn.delete:hover {
+  background: #ff2d55;
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
 .car-badge {
   position: absolute;
   top: 8px;
@@ -227,6 +400,7 @@
   text-transform: uppercase;
   color: #fff;
   backdrop-filter: blur(4px);
+  z-index: 2;
 }
 
 .car-badge.supercar { background: rgba(255, 45, 85, 0.85); }
