@@ -1,0 +1,21 @@
+{
+  "name": "car-coloring-studio",
+  "version": "1.0.0",
+  "description": "태블릿과 S-Pen에 최적화된 프리미엄 자동차 색칠 웹 애플리케이션",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "canvas",
+    "coloring",
+    "car",
+    "s-pen",
+    "drawing",
+    "web-audio"
+  ],
+  "author": "",
+  "license": "MIT"
+}

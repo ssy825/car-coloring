@@ -8,7 +8,7 @@ export const CARS_DATA = [
     categoryName: '슈퍼카',
     difficulty: '어려움 (정밀)',
     description: '공기역학적 에어로 다이내믹 바디와 거대한 리어 윙을 갖춘 V12 플래그십 슈퍼카',
-    image: 'images/lamborghini.jpg',
+    image: 'images/cars/lamborghini.jpg',
     defaultColor: '#ff2d55',
     accentColor: '#ffe600'
   },
@@ -20,7 +20,7 @@ export const CARS_DATA = [
     categoryName: '슈퍼카',
     difficulty: '보통',
     description: '레이스 트랙을 위해 태어난 전설적인 리어 엔진 스포츠카',
-    image: 'images/porsche.jpg',
+    image: 'images/cars/porsche.jpg',
     defaultColor: '#30d158',
     accentColor: '#0a84ff'
   },
@@ -32,7 +32,7 @@ export const CARS_DATA = [
     categoryName: '스포츠카',
     difficulty: '쉬움',
     description: '강렬한 V8 엔진 배기음과 근육질 라인의 아메리칸 머슬카',
-    image: 'images/mustang.jpg',
+    image: 'images/cars/mustang.jpg',
     defaultColor: '#0a84ff',
     accentColor: '#ffffff'
   },
@@ -44,7 +44,7 @@ export const CARS_DATA = [
     categoryName: '스포츠카',
     difficulty: '보통',
     description: '우아한 곡선미와 폭발적인 성능을 결합한 럭셔리 그랜드 투어러',
-    image: 'images/mercedes.jpg',
+    image: 'images/cars/mercedes.jpg',
     defaultColor: '#silver',
     accentColor: '#5e5ce6'
   },
@@ -56,7 +56,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '보통',
     description: '심리스 호라이즌 램프와 우아한 실루엣을 지닌 대한민국 대표 7세대 플래그십 세단',
-    image: 'images/grandeur.jpg',
+    image: 'images/cars/grandeur.jpg',
     defaultColor: '#1c1c1e',
     accentColor: '#5e5ce6'
   },
@@ -68,7 +68,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '보통',
     description: '캐스캐이딩 그릴과 세련된 LED 헤드램프의 역동적인 6세대 프리미엄 세단',
-    image: 'images/grandeur_ig.jpg',
+    image: 'images/cars/grandeur_ig.jpg',
     defaultColor: '#1c1c1e',
     accentColor: '#ff3b30'
   },
@@ -80,7 +80,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '보통',
     description: '웅장한 폭포수 세로 그릴과 유려한 곡선의 플루이딕 스컬프처 5세대 그랜저',
-    image: 'images/grandeur_hg.jpg',
+    image: 'images/cars/grandeur_hg.jpg',
     defaultColor: '#2c2c2e',
     accentColor: '#ffd60a'
   },
@@ -92,7 +92,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '보통',
     description: '과감하고 날렵한 4도어 쿠페형 실루엣과 크롬 사이드 캐릭터 라인의 대표 중형 세단',
-    image: 'images/sonata_yf.jpg',
+    image: 'images/cars/sonata_yf.jpg',
     defaultColor: '#0a84ff',
     accentColor: '#ffffff'
   },
@@ -104,7 +104,7 @@ export const CARS_DATA = [
     categoryName: '상용/대형',
     difficulty: '보통',
     description: '신선한 식품과 냉동 식자재를 안전하게 일정한 저온으로 배송하는 1톤 특수 냉동 탑차',
-    image: 'images/freezer_truck.jpg',
+    image: 'images/cars/freezer_truck.jpg',
     defaultColor: '#ffffff',
     accentColor: '#0a84ff'
   },
@@ -116,7 +116,7 @@ export const CARS_DATA = [
     categoryName: '상용/대형',
     difficulty: '쉬움',
     description: '물류와 짐을 든든하게 실어 나르는 친숙한 1톤 포터 카고 화물 트럭',
-    image: 'images/truck.jpg',
+    image: 'images/cars/truck.jpg',
     defaultColor: '#0a84ff',
     accentColor: '#ffffff'
   },
@@ -128,7 +128,7 @@ export const CARS_DATA = [
     categoryName: '특수차량',
     difficulty: '쉬움',
     description: '도시의 평화를 지키는 경광등과 사이렌이 달린 경찰 순찰차',
-    image: 'images/police.jpg',
+    image: 'images/cars/police.jpg',
     defaultColor: '#1c1c1e',
     accentColor: '#0a84ff'
   },
@@ -140,7 +140,7 @@ export const CARS_DATA = [
     categoryName: '특수차량',
     difficulty: '보통',
     description: '응급 환자를 신속하게 병원으로 이송하는 최신형 구급차',
-    image: 'images/ambulance.jpg',
+    image: 'images/cars/ambulance.jpg',
     defaultColor: '#ffffff',
     accentColor: '#ff453a'
   },
@@ -152,7 +152,7 @@ export const CARS_DATA = [
     categoryName: '특수차량',
     difficulty: '보통',
     description: '화재 진압 장비와 고성능 방수포를 탑재한 소방차',
-    image: 'images/fire_truck.jpg',
+    image: 'images/cars/fire_truck.jpg',
     defaultColor: '#ff3b30',
     accentColor: '#ffd60a'
   },
@@ -164,7 +164,7 @@ export const CARS_DATA = [
     categoryName: '상용/대형',
     difficulty: '쉬움',
     description: '학생들을 안전하게 학교로 데려다주는 클래식 노란색 통학 버스',
-    image: 'images/school_bus.jpg',
+    image: 'images/cars/school_bus.jpg',
     defaultColor: '#ffcc00',
     accentColor: '#000000'
   },
@@ -176,7 +176,7 @@ export const CARS_DATA = [
     categoryName: '오프로드',
     difficulty: '보통',
     description: '거대한 메가 타이어와 하이 리프트 서스펜션의 괴물 트럭',
-    image: 'images/monster_truck.jpg',
+    image: 'images/cars/monster_truck.jpg',
     defaultColor: '#bf5af2',
     accentColor: '#30d158'
   },
@@ -188,7 +188,7 @@ export const CARS_DATA = [
     categoryName: '상용/대형',
     difficulty: '보통',
     description: '대륙을 횡단하며 물류를 운송하는 웅장한 크롬 그릴의 세미 트럭',
-    image: 'images/semi_truck.jpg',
+    image: 'images/cars/semi_truck.jpg',
     defaultColor: '#0a84ff',
     accentColor: '#ff9f0a'
   },
@@ -200,7 +200,7 @@ export const CARS_DATA = [
     categoryName: '오프로드',
     difficulty: '보통',
     description: '바위산과 진흙길도 거침없이 질주하는 사륜구동 어드벤처 SUV',
-    image: 'images/jeep.jpg',
+    image: 'images/cars/jeep.jpg',
     defaultColor: '#32d74b',
     accentColor: '#ff9f0a'
   },
@@ -212,7 +212,7 @@ export const CARS_DATA = [
     categoryName: '건설/중장비',
     difficulty: '어려움 (정밀)',
     description: '강력한 유압 붐대와 버킷으로 땅을 파고 건축을 돕는 파워 굴착기',
-    image: 'images/excavator.jpg',
+    image: 'images/cars/excavator.jpg',
     defaultColor: '#ff9f0a',
     accentColor: '#1c1c1e'
   },
@@ -224,7 +224,7 @@ export const CARS_DATA = [
     categoryName: '건설/중장비',
     difficulty: '보통',
     description: '거대한 후륜 타이어로 밭을 일구는 현대적인 농업용 트랙터',
-    image: 'images/tractor.jpg',
+    image: 'images/cars/tractor.jpg',
     defaultColor: '#34c759',
     accentColor: '#ffd60a'
   },
@@ -236,7 +236,7 @@ export const CARS_DATA = [
     categoryName: '스포츠카',
     difficulty: '어려움 (정밀)',
     description: '서킷을 초고속으로 질주하는 최첨단 공기역학 에어로 바디의 F1 머신',
-    image: 'images/f1_car.jpg',
+    image: 'images/cars/f1_car.jpg',
     defaultColor: '#ff2d55',
     accentColor: '#00f0ff'
   },
@@ -248,7 +248,7 @@ export const CARS_DATA = [
     categoryName: '오프로드',
     difficulty: '쉬움',
     description: '단단한 스테인리스 스틸 외골격과 미래지향적 다각형 앵글의 전기 픽업트럭',
-    image: 'images/cybertruck.jpg',
+    image: 'images/cars/cybertruck.jpg',
     defaultColor: '#a1a8b8',
     accentColor: '#00f0ff'
   },
@@ -260,7 +260,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '쉬움',
     description: '동글동글한 헤드램프와 둥근 휀더가 매력적인 시대를 초월한 클래식 딱정벌레차',
-    image: 'images/beetle.jpg',
+    image: 'images/cars/beetle.jpg',
     defaultColor: '#ffd60a',
     accentColor: '#ff3b30'
   },
@@ -272,7 +272,7 @@ export const CARS_DATA = [
     categoryName: '세단/승용',
     difficulty: '보통',
     description: '보닛 스트라이프와 유니언 잭 감성의 스타일리시 어반 프리미엄 해치백',
-    image: 'images/minicooper.jpg',
+    image: 'images/cars/minicooper.jpg',
     defaultColor: '#30d158',
     accentColor: '#ffffff'
   },
@@ -284,19 +284,19 @@ export const CARS_DATA = [
     categoryName: '건설/중장비',
     difficulty: '어려움 (정밀)',
     description: '회전하는 드럼통으로 굳지 않게 콘크리트를 운반하는 든든한 건설 차량',
-    image: 'images/mixer.jpg',
+    image: 'images/cars/mixer.jpg',
     defaultColor: '#ff9f0a',
     accentColor: '#0a84ff'
   }
 ];
 
 export const CATEGORIES = [
-  { id: 'all', name: '전체 보기', image: 'images/cat_all.svg' },
-  { id: 'supercar', name: '슈퍼카', image: 'images/cat_supercar.svg' },
-  { id: 'sports', name: '스포츠카', image: 'images/cat_sports.svg' },
-  { id: 'sedan', name: '세단/승용', image: 'images/cat_sedan.svg' },
-  { id: 'special', name: '특수차량', image: 'images/cat_special.svg' },
-  { id: 'offroad', name: '오프로드', image: 'images/cat_offroad.svg' },
-  { id: 'commercial', name: '상용/대형', image: 'images/cat_commercial.svg' },
-  { id: 'heavy', name: '건설/중장비', image: 'images/cat_heavy.svg' }
+  { id: 'all', name: '전체 보기', image: 'images/categories/cat_all.svg' },
+  { id: 'supercar', name: '슈퍼카', image: 'images/categories/cat_supercar.svg' },
+  { id: 'sports', name: '스포츠카', image: 'images/categories/cat_sports.svg' },
+  { id: 'sedan', name: '세단/승용', image: 'images/categories/cat_sedan.svg' },
+  { id: 'special', name: '특수차량', image: 'images/categories/cat_special.svg' },
+  { id: 'offroad', name: '오프로드', image: 'images/categories/cat_offroad.svg' },
+  { id: 'commercial', name: '상용/대형', image: 'images/categories/cat_commercial.svg' },
+  { id: 'heavy', name: '건설/중장비', image: 'images/categories/cat_heavy.svg' }
 ];

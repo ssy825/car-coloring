@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+
+# OS metadata & caches
+.DS_Store
+Thumbs.db
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
