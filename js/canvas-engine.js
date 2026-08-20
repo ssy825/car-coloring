@@ -25,6 +25,7 @@ export class CanvasEngine {
     this.currentTool = 'fill'; // 'fill', 'brush', 'eraser', 'eyedropper', 'sticker'
     this.previousToolBeforeBarrel = null; // S-Pen 버튼 누를 때 이전 도구 기억
     this.isBarrelButtonPressed = false;
+    this.currentStrokeIsEraser = false; // 현재 진행 중인 스트로크가 지우개인지 여부
 
     this.currentColor = '#ff2d55';
     this.currentRgb = { r: 255, g: 45, b: 85, a: 255 };
@@ -263,17 +264,21 @@ export class CanvasEngine {
   attachEvents() {
     const container = this.container;
 
-    // 우클릭 컨텍스트 메뉴 방지 (S-Pen 버튼을 눌렀을 때 팝업 뜨는 현상 방지)
-    container.addEventListener('contextmenu', e => {
+    // 우클릭 및 컨텍스트 메뉴 기본 동작 차단
+    const preventContextMenu = e => {
       e.preventDefault();
+      e.stopPropagation();
       return false;
-    });
+    };
+    container.addEventListener('contextmenu', preventContextMenu, { capture: true });
+    window.addEventListener('contextmenu', preventContextMenu, { capture: true });
 
-    // Pointer Events
-    container.addEventListener('pointerdown', this.handlePointerDown.bind(this));
-    window.addEventListener('pointermove', this.handlePointerMove.bind(this));
-    window.addEventListener('pointerup', this.handlePointerUp.bind(this));
-    window.addEventListener('pointercancel', this.handlePointerCancel.bind(this));
+    // Pointer Events (pointerdown, pointermove, pointerup, pointercancel)
+    container.addEventListener('pointerdown', this.handlePointerDown.bind(this), { passive: false });
+    window.addEventListener('pointermove', this.handlePointerMove.bind(this), { passive: false });
+    window.addEventListener('pointerup', this.handlePointerUp.bind(this), { passive: false });
+    window.addEventListener('pointercancel', this.handlePointerCancel.bind(this), { passive: false });
+    container.addEventListener('pointerleave', this.handlePointerLeave.bind(this), { passive: false });
 
     // Wheel (데스크톱 마우스 휠 줌/팬)
     container.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
@@ -284,20 +289,34 @@ export class CanvasEngine {
     container.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
   }
 
-  /**
-   * S-Pen 사이드 버튼(Barrel Button) 누름 여부 감지
-   */
-  checkBarrelButton(e) {
-    // S-Pen 포인터이고, buttons 비트마스크에 2(Secondary) 또는 32(Eraser/Barrel)가 포함되어 있거나 button === 2
-    if (e.pointerType === 'pen') {
-      const isBarrel = (e.buttons & 2) !== 0 || (e.buttons & 32) !== 0 || e.button === 2 || e.button === 5;
-      return isBarrel;
+  handlePointerLeave(e) {
+    this.uiCtx.clearRect(0, 0, this.width, this.height);
+    if (this.onSPenStateChange) {
+      this.onSPenStateChange({
+        tool: this.currentTool,
+        isPen: false,
+        pressure: 0,
+        isDrawing: false
+      });
     }
-    return false;
+  }
+
+  getEffectiveTool() {
+    return this.currentTool;
   }
 
   handlePointerDown(e) {
-    // 손가락 터치가 2개 이상이면 드로잉하지 않고 제스처 모드로 전환 (팜 리젝션)
+    if (e.target !== this.container && !this.container.contains(e.target)) return;
+
+    try {
+      if (this.container.setPointerCapture && e.pointerId) {
+        this.container.setPointerCapture(e.pointerId);
+      }
+    } catch (err) {
+      // ignore
+    }
+
+    // 손가락 터치가 2개 이상이면 제스처 모드로 전환 (팜 리젝션)
     if (e.pointerType === 'touch' && this.activePointers.size >= 1) {
       this.isDrawing = false;
       return;
@@ -309,21 +328,16 @@ export class CanvasEngine {
       type: e.pointerType
     });
 
-    const isPen = e.pointerType === 'pen';
-    const isBarrel = this.checkBarrelButton(e);
-
-    // S-Pen 사이드 버튼을 누른 상태면 임시 지우개 모드로 전환!
-    if (isPen && isBarrel) {
-      if (!this.isBarrelButtonPressed) {
-        this.previousToolBeforeBarrel = this.currentTool;
-        this.isBarrelButtonPressed = true;
-        if (this.onSPenStateChange) {
-          this.onSPenStateChange({ barrelPressed: true, tool: 'eraser' });
-        }
-      }
+    if (this.onSPenStateChange) {
+      this.onSPenStateChange({
+        tool: this.currentTool,
+        isPen: e.pointerType === 'pen' || e.pointerType === 'eraser',
+        pressure: e.pressure || 0,
+        isDrawing: true
+      });
     }
 
-    const effectiveTool = (this.isBarrelButtonPressed) ? 'eraser' : this.currentTool;
+    const effectiveTool = this.currentTool;
     const { x, y } = this.clientToCanvas(e.clientX, e.clientY);
 
     // 유효한 드로잉 범위인지 확인
@@ -358,13 +372,12 @@ export class CanvasEngine {
     } else if (effectiveTool === 'brush' || effectiveTool === 'eraser') {
       // 브러시 또는 지우개 드로잉 시작
       this.isDrawing = true;
-      const targetBrush = effectiveTool === 'eraser' ? 'eraser' : brushEngine.currentBrush;
-      brushEngine.setBrush(targetBrush);
       brushEngine.setSize(this.brushSize);
       brushEngine.setOpacity(this.brushOpacity);
 
-      const pressure = e.pressure !== undefined ? e.pressure : 0.5;
-      brushEngine.startStroke(this.paintCtx, x, y, pressure, this.currentColor);
+      const isEraser = (effectiveTool === 'eraser');
+      const pressure = e.pressure !== undefined && e.pressure > 0 ? e.pressure : 0.5;
+      brushEngine.startStroke(this.paintCtx, x, y, pressure, this.currentColor, isEraser);
       soundFx.playBrushStroke();
     }
   }
@@ -372,36 +385,39 @@ export class CanvasEngine {
   handlePointerMove(e) {
     const { x, y } = this.clientToCanvas(e.clientX, e.clientY);
 
-    // S-Pen 호버링 커서 가이드 업데이트 (UI Layer)
-    this.drawHoverCursor(x, y, e.pointerType === 'pen', e.pressure);
-
-    // S-Pen 사이드 버튼 상태 실시간 체크
-    if (e.pointerType === 'pen') {
-      const isBarrel = this.checkBarrelButton(e);
-      if (isBarrel && !this.isBarrelButtonPressed) {
-        this.previousToolBeforeBarrel = this.currentTool;
-        this.isBarrelButtonPressed = true;
-        if (this.onSPenStateChange) {
-          this.onSPenStateChange({ barrelPressed: true, tool: 'eraser' });
-        }
-      } else if (!isBarrel && this.isBarrelButtonPressed && e.buttons === 0) {
-        this.isBarrelButtonPressed = false;
-        if (this.onSPenStateChange) {
-          this.onSPenStateChange({ barrelPressed: false, tool: this.previousToolBeforeBarrel || this.currentTool });
-        }
-      }
+    if (this.onSPenStateChange) {
+      this.onSPenStateChange({
+        tool: this.currentTool,
+        isPen: e.pointerType === 'pen' || e.pointerType === 'eraser',
+        pressure: e.pressure || 0,
+        isDrawing: this.isDrawing
+      });
     }
+
+    // 호버링 커서 가이드 업데이트 (UI Layer)
+    this.drawHoverCursor(x, y, e.pointerType === 'pen' || e.pointerType === 'eraser', e.pressure);
 
     if (!this.isDrawing) return;
 
-    const effectiveTool = this.isBarrelButtonPressed ? 'eraser' : this.currentTool;
+    const effectiveTool = this.currentTool;
 
-    if (effectiveTool === 'brush' || effectiveTool === 'eraser') {
-      const targetBrush = effectiveTool === 'eraser' ? 'eraser' : brushEngine.currentBrush;
-      brushEngine.setBrush(targetBrush);
-      const pressure = e.pressure !== undefined ? e.pressure : 0.5;
+    if (effectiveTool === 'eraser') {
+      const pressure = e.pressure !== undefined && e.pressure > 0 ? e.pressure : 0.5;
       const lastPoint = brushEngine.lastPoint || { x, y, pressure };
-
+      brushEngine.setSize(this.brushSize);
+      brushEngine.eraseSegment(
+        this.paintCtx,
+        lastPoint.x,
+        lastPoint.y,
+        x,
+        y,
+        pressure
+      );
+    } else if (effectiveTool === 'brush') {
+      const pressure = e.pressure !== undefined && e.pressure > 0 ? e.pressure : 0.5;
+      const lastPoint = brushEngine.lastPoint || { x, y, pressure };
+      brushEngine.setSize(this.brushSize);
+      brushEngine.setOpacity(this.brushOpacity);
       brushEngine.drawSegment(
         this.paintCtx,
         lastPoint.x,
@@ -417,27 +433,36 @@ export class CanvasEngine {
   handlePointerUp(e) {
     this.activePointers.delete(e.pointerId);
 
+    try {
+      if (this.container.releasePointerCapture && e.pointerId) {
+        this.container.releasePointerCapture(e.pointerId);
+      }
+    } catch (err) {
+      // ignore
+    }
+
     if (this.isDrawing) {
       this.isDrawing = false;
       brushEngine.endStroke();
       this.saveHistory();
     }
 
-    // S-Pen 버튼 뗐을 때 복귀
-    if (e.pointerType === 'pen' && this.isBarrelButtonPressed) {
-      if ((e.buttons & 2) === 0 && (e.buttons & 32) === 0) {
-        this.isBarrelButtonPressed = false;
-        if (this.onSPenStateChange) {
-          this.onSPenStateChange({ barrelPressed: false, tool: this.previousToolBeforeBarrel || this.currentTool });
-        }
-      }
+    if (this.onSPenStateChange) {
+      this.onSPenStateChange({
+        tool: this.currentTool,
+        isPen: e.pointerType === 'pen',
+        pressure: 0,
+        isDrawing: false
+      });
     }
   }
 
   handlePointerCancel(e) {
+    this.emitDebugEvent('pointercancel', e);
     this.activePointers.delete(e.pointerId);
     if (this.isDrawing) {
       this.isDrawing = false;
+      this.currentStrokeIsEraser = false;
       brushEngine.endStroke();
     }
   }
@@ -452,7 +477,7 @@ export class CanvasEngine {
       return;
     }
 
-    const effectiveTool = this.isBarrelButtonPressed ? 'eraser' : this.currentTool;
+    const effectiveTool = this.getEffectiveTool();
 
     if (effectiveTool === 'brush' || effectiveTool === 'eraser') {
       const size = this.brushSize * (isPen && pressure > 0 ? (0.5 + pressure) : 1.0);

@@ -1,4 +1,4 @@
-// 13종 자동차 도안 메타데이터
+// 15종 자동차 도안 메타데이터
 export const CARS_DATA = [
   {
     id: 'lamborghini',
@@ -49,6 +49,18 @@ export const CARS_DATA = [
     accentColor: '#5e5ce6'
   },
   {
+    id: 'grandeur',
+    name: '현대 그랜저',
+    nameEn: 'Hyundai Grandeur GN7',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '보통',
+    description: '심리스 호라이즌 램프와 우아한 실루엣을 지닌 대한민국 대표 프리미엄 플래그십 세단',
+    image: 'images/grandeur.jpg',
+    defaultColor: '#1c1c1e',
+    accentColor: '#5e5ce6'
+  },
+  {
     id: 'police',
     name: '경찰차 순찰차',
     nameEn: 'Police Patrol Cruiser',
@@ -95,6 +107,18 @@ export const CARS_DATA = [
     image: 'images/school_bus.jpg',
     defaultColor: '#ffcc00',
     accentColor: '#000000'
+  },
+  {
+    id: 'truck',
+    name: '일반 1톤 트럭',
+    nameEn: '1-Ton Cargo Truck',
+    category: 'commercial',
+    categoryName: '상용/대형',
+    difficulty: '쉬움',
+    description: '물류와 짐을 든든하게 실어 나르는 친숙한 1톤 카고 화물 트럭',
+    image: 'images/truck.jpg',
+    defaultColor: '#0a84ff',
+    accentColor: '#ffffff'
   },
   {
     id: 'monster_truck',
@@ -155,6 +179,66 @@ export const CARS_DATA = [
     image: 'images/tractor.jpg',
     defaultColor: '#34c759',
     accentColor: '#ffd60a'
+  },
+  {
+    id: 'f1_car',
+    name: 'F1 포뮬러 레이스카',
+    nameEn: 'Formula 1 Grand Prix Car',
+    category: 'sports',
+    categoryName: '스포츠카',
+    difficulty: '어려움 (정밀)',
+    description: '서킷을 초고속으로 질주하는 최첨단 공기역학 에어로 바디의 F1 머신',
+    image: 'images/f1_car.jpg',
+    defaultColor: '#ff2d55',
+    accentColor: '#00f0ff'
+  },
+  {
+    id: 'cybertruck',
+    name: '테슬라 사이버트럭',
+    nameEn: 'Tesla Cybertruck EV',
+    category: 'offroad',
+    categoryName: '오프로드',
+    difficulty: '쉬움',
+    description: '단단한 스테인리스 스틸 외골격과 미래지향적 다각형 앵글의 전기 픽업트럭',
+    image: 'images/cybertruck.jpg',
+    defaultColor: '#a1a8b8',
+    accentColor: '#00f0ff'
+  },
+  {
+    id: 'beetle',
+    name: '폭스바겐 클래식 비틀',
+    nameEn: 'Classic VW Beetle Bug',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '쉬움',
+    description: '동글동글한 헤드램프와 둥근 휀더가 매력적인 시대를 초월한 클래식 딱정벌레차',
+    image: 'images/beetle.jpg',
+    defaultColor: '#ffd60a',
+    accentColor: '#ff3b30'
+  },
+  {
+    id: 'minicooper',
+    name: '미니 쿠퍼',
+    nameEn: 'Mini Cooper S',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '보통',
+    description: '보닛 스트라이프와 유니언 잭 감성의 스타일리시 어반 프리미엄 해치백',
+    image: 'images/minicooper.jpg',
+    defaultColor: '#30d158',
+    accentColor: '#ffffff'
+  },
+  {
+    id: 'mixer',
+    name: '레미콘 믹서트럭',
+    nameEn: 'Concrete Cement Mixer Truck',
+    category: 'heavy',
+    categoryName: '건설/중장비',
+    difficulty: '어려움 (정밀)',
+    description: '회전하는 드럼통으로 굳지 않게 콘크리트를 운반하는 든든한 건설 차량',
+    image: 'images/mixer.jpg',
+    defaultColor: '#ff9f0a',
+    accentColor: '#0a84ff'
   }
 ];
 
@@ -162,6 +246,7 @@ export const CATEGORIES = [
   { id: 'all', name: '전체 보기' },
   { id: 'supercar', name: '슈퍼카' },
   { id: 'sports', name: '스포츠카' },
+  { id: 'sedan', name: '세단/승용' },
   { id: 'special', name: '특수차량' },
   { id: 'offroad', name: '오프로드' },
   { id: 'commercial', name: '상용/대형' },

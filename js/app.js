@@ -69,7 +69,7 @@ class CarColoringApp {
     this.btnZoomReset = document.getElementById('btn-zoom-reset');
     this.zoomLevelText = document.getElementById('zoom-level-text');
 
-    // 모달들
+    // 모달 및 도움말 / S-Pen 요소
     this.carsModal = document.getElementById('cars-modal');
     this.exportModal = document.getElementById('export-modal');
     this.helpModal = document.getElementById('help-modal');
@@ -116,18 +116,29 @@ class CarColoringApp {
         this.zoomLevelText.textContent = `${zoomPercent}%`;
       },
       onSPenStateChange: state => {
-        if (state.barrelPressed) {
-          this.spenBadge.classList.add('active', 'eraser-mode');
-          this.spenBadge.innerHTML = '<span>🖊️ 지우개 (S-Pen 버튼)</span>';
-        } else {
-          this.spenBadge.classList.remove('eraser-mode');
-          this.spenBadge.innerHTML = '<span>✏️ S-Pen 연결됨</span>';
-        }
+        this.updateSPenBadge(state);
       }
     });
 
     // 초기 색상 설정
     this.palette.setColor('#ff2d55', false);
+  }
+
+  updateSPenBadge(state) {
+    if (!this.spenBadge) return;
+
+    if (state.isPen) {
+      this.spenBadge.classList.add('active');
+      if (state.isDrawing) {
+        const pPercent = Math.round((state.pressure || 0.5) * 100);
+        this.spenBadge.innerHTML = `<span>✏️ S-Pen 필압 드로잉 (${pPercent}%)</span>`;
+      } else {
+        this.spenBadge.innerHTML = '<span>✏️ S-Pen 연결됨 (호버)</span>';
+      }
+    } else {
+      this.spenBadge.classList.remove('active');
+      this.spenBadge.innerHTML = '<span>✏️ S-Pen 대기중</span>';
+    }
   }
 
   async loadCarByIndex(index) {
@@ -323,8 +334,18 @@ class CarColoringApp {
       }
     });
 
-    // 브러시 설정 패널 노출 여부
-    if (toolName === 'brush' || toolName === 'eraser') {
+    // 브러시 설정 패널 노출 여부 및 상태 동기화
+    if (toolName === 'brush') {
+      this.brushSettingsPanel.classList.remove('hidden');
+      if (!BRUSH_TYPES[brushEngine.currentBrush]) {
+        brushEngine.setBrush('pen');
+      }
+      if (this.brushTypeContainer) {
+        this.brushTypeContainer.querySelectorAll('.brush-type-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.brushId === brushEngine.currentBrush);
+        });
+      }
+    } else if (toolName === 'eraser') {
       this.brushSettingsPanel.classList.remove('hidden');
     } else {
       this.brushSettingsPanel.classList.add('hidden');

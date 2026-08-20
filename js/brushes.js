@@ -6,8 +6,7 @@ export const BRUSH_TYPES = {
   crayon: { id: 'crayon', name: '크레용', icon: '🖍️', desc: '거칠고 따뜻한 질감의 크레용/색연필' },
   airbrush: { id: 'airbrush', name: '에어브러시', icon: '💨', desc: '부드럽게 흩뿌려지는 스프레이' },
   neon: { id: 'neon', name: '네온 글로우', icon: '✨', desc: '빛을 발산하는 사이버 네온 라이트' },
-  watercolor: { id: 'watercolor', name: '수채화', icon: '🎨', desc: '자연스럽게 번지는 수채화 붓' },
-  eraser: { id: 'eraser', name: '지우개', icon: '🧹', desc: '외곽선은 남기고 채색만 지우기' }
+  watercolor: { id: 'watercolor', name: '수채화', icon: '🎨', desc: '자연스럽게 번지는 수채화 붓' }
 };
 
 export class BrushEngine {
@@ -34,22 +33,62 @@ export class BrushEngine {
   }
 
   /**
-   * 브로크 시작
+   * 스트로크 시작
    */
-  startStroke(ctx, x, y, pressure = 0.5, color = '#000000') {
+  startStroke(ctx, x, y, pressure = 0.5, color = '#000000', isEraser = false) {
     this.lastPoint = { x, y, pressure };
-    this.drawSegment(ctx, x, y, x, y, pressure, color);
+    if (isEraser) {
+      this.eraseSegment(ctx, x, y, x, y, pressure);
+    } else {
+      this.drawSegment(ctx, x, y, x, y, pressure, color);
+    }
+  }
+
+  /**
+   * 지우개 선 그리기 (외곽선 보존 및 Paint 레이어 픽셀 투명화)
+   */
+  eraseSegment(ctx, x1, y1, x2, y2, pressure = 0.5) {
+    const effectivePressure = this.pressureEnabled && pressure > 0 ? pressure : 0.6;
+    const baseSize = this.size;
+    const currentSize = Math.max(4, baseSize * (0.8 + effectivePressure * 0.8));
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.globalAlpha = 1.0;
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    const dist = Math.hypot(x2 - x1, y2 - y1);
+    if (dist < 0.5) {
+      // 단일 탭/클릭 시 원형으로 확실히 지우기
+      ctx.beginPath();
+      ctx.arc(x1, y1, currentSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    this.lastPoint = { x: x2, y: y2, pressure };
   }
 
   /**
    * 브러시 선 그리기 (이전 점 ~ 현재 점 보간)
    */
   drawSegment(ctx, x1, y1, x2, y2, pressure = 0.5, color = '#000000') {
-    // S-Pen 필압 계수 계산 (압력이 0이거나 미지원 기기일 땐 0.5 기본값)
+    // S-Pen 필압 계수 계산 (압력이 0이거나 미지원 기기일 땐 0.6 기본값)
     const effectivePressure = this.pressureEnabled && pressure > 0 ? pressure : 0.6;
     const baseSize = this.size;
 
     ctx.save();
+    // 반드시 일반 드로잉 블렌드 모드로 보장
+    ctx.globalCompositeOperation = 'source-over';
+
+    const dist = Math.hypot(x2 - x1, y2 - y1);
 
     switch (this.currentBrush) {
       case 'pen': {
@@ -62,10 +101,16 @@ export class BrushEngine {
         ctx.lineJoin = 'round';
         ctx.globalAlpha = this.opacity;
 
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
+        if (dist < 0.5) {
+          ctx.beginPath();
+          ctx.arc(x1, y1, currentSize / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
         break;
       }
 
@@ -128,7 +173,6 @@ export class BrushEngine {
           const count = Math.floor(currentSize * 0.8 * effectivePressure);
           for (let p = 0; p < count; p++) {
             const angle = Math.random() * Math.PI * 2;
-            // 가우시안 느낌의 중심 밀집 분포
             const r = (Math.random() + Math.random()) / 2 * currentSize;
             const px = cx + Math.cos(angle) * r;
             const py = cy + Math.sin(angle) * r;
@@ -184,20 +228,6 @@ export class BrushEngine {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.globalAlpha = Math.min(0.2, this.opacity * 0.18 * effectivePressure);
-
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-        break;
-      }
-
-      case 'eraser': {
-        const currentSize = Math.max(4, baseSize * (0.8 + effectivePressure * 0.8));
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = currentSize;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
 
         ctx.beginPath();
         ctx.moveTo(x1, y1);
