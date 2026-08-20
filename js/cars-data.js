@@ -291,12 +291,12 @@ export const CARS_DATA = [
 ];
 
 export const CATEGORIES = [
-  { id: 'all', name: '전체 보기' },
-  { id: 'supercar', name: '슈퍼카' },
-  { id: 'sports', name: '스포츠카' },
-  { id: 'sedan', name: '세단/승용' },
-  { id: 'special', name: '특수차량' },
-  { id: 'offroad', name: '오프로드' },
-  { id: 'commercial', name: '상용/대형' },
-  { id: 'heavy', name: '건설/중장비' }
+  { id: 'all', name: '전체 보기', image: 'images/cat_all.svg' },
+  { id: 'supercar', name: '슈퍼카', image: 'images/cat_supercar.svg' },
+  { id: 'sports', name: '스포츠카', image: 'images/cat_sports.svg' },
+  { id: 'sedan', name: '세단/승용', image: 'images/cat_sedan.svg' },
+  { id: 'special', name: '특수차량', image: 'images/cat_special.svg' },
+  { id: 'offroad', name: '오프로드', image: 'images/cat_offroad.svg' },
+  { id: 'commercial', name: '상용/대형', image: 'images/cat_commercial.svg' },
+  { id: 'heavy', name: '건설/중장비', image: 'images/cat_heavy.svg' }
 ];

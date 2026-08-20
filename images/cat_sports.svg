@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(80, 280) scale(0.85)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 460 L 60 330 Q 60 300 110 300 L 160 300 L 320 200 Q 420 180 580 190 L 760 310 L 920 325 Q 960 335 960 390 L 960 460 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Rear Ducktail Spoiler -->
+    <path d="M 80 300 L 150 300 L 140 330 L 90 330 Z" fill="#1a202c" stroke="#111" stroke-width="10"/>
+
+    <!-- Main Muscle Coupe Body (Vibrant Racing Blue) -->
+    <path d="M 90 430 L 160 320 L 330 205 L 560 205 L 720 315 L 920 330 Q 950 340 950 400 L 940 440 L 810 440 A 100 100 0 0 0 610 440 L 390 440 A 100 100 0 0 0 190 440 L 90 440 Z"
+          fill="#0066cc" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Iconic White Racing Stripes (Side Rocker Stripe) -->
+    <path d="M 190 400 L 390 400" stroke="#ffffff" stroke-width="16" stroke-linecap="square"/>
+    <path d="M 610 400 L 810 400" stroke="#ffffff" stroke-width="16" stroke-linecap="square"/>
+    <path d="M 190 418 L 390 418" stroke="#ffffff" stroke-width="6" stroke-linecap="square"/>
+    <path d="M 610 418 L 810 418" stroke="#ffffff" stroke-width="6" stroke-linecap="square"/>
+
+    <!-- Windows (Tinted Fastback Coupe Greenhouse) -->
+    <path d="M 335 220 L 535 220 L 685 305 L 265 305 Z" fill="#1a202c" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M 360 230 L 515 230 L 610 295 L 300 295 Z" fill="#cbd5e0"/>
+    <path d="M 525 230 L 655 295 L 525 295 Z" fill="#718096"/>
+    <!-- B-Pillar -->
+    <line x1="515" y1="220" x2="515" y2="305" stroke="#111" stroke-width="10"/>
+
+    <!-- Muscular Fender Creases -->
+    <path d="M 190 330 Q 290 310 390 330" fill="none" stroke="#004499" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 610 330 Q 710 310 810 330" fill="none" stroke="#004499" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Door Line & Chrome Handle -->
+    <path d="M 330 305 L 310 435" stroke="#111" stroke-width="8"/>
+    <path d="M 580 305 L 560 435" stroke="#111" stroke-width="8"/>
+    <rect x="500" y="330" width="35" height="10" rx="4" fill="#ffffff" stroke="#111" stroke-width="4"/>
+
+    <!-- Aggressive Headlight -->
+    <polygon points="850,335 930,345 890,375" fill="#ecc94b" stroke="#111" stroke-width="6"/>
+
+    <!-- Rear 5-Spoke Dark Alloy Wheel -->
+    <g transform="translate(290, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="60" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="22" fill="#0066cc" stroke="#111" stroke-width="6"/>
+      <!-- Spokes -->
+      <line x1="0" y1="-50" x2="0" y2="50" stroke="#111" stroke-width="12"/>
+      <line x1="-48" y1="-16" x2="48" y2="16" stroke="#111" stroke-width="12"/>
+      <line x1="-30" y1="40" x2="30" y2="-40" stroke="#111" stroke-width="12"/>
+    </g>
+
+    <!-- Front 5-Spoke Dark Alloy Wheel -->
+    <g transform="translate(710, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="60" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="22" fill="#0066cc" stroke="#111" stroke-width="6"/>
+      <line x1="0" y1="-50" x2="0" y2="50" stroke="#111" stroke-width="12"/>
+      <line x1="-48" y1="-16" x2="48" y2="16" stroke="#111" stroke-width="12"/>
+      <line x1="-30" y1="40" x2="30" y2="-40" stroke="#111" stroke-width="12"/>
+    </g>
+  </g>
+</svg>

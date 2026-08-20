@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(80, 280) scale(0.85)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 460 L 60 360 Q 60 340 100 340 L 220 340 L 360 210 Q 480 180 660 200 L 760 320 L 920 340 Q 960 350 960 400 L 960 460 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Main Elegant Body (Modern Silver White Finish) -->
+    <path d="M 80 430 L 100 350 L 240 340 L 370 220 L 660 220 L 750 330 L 930 350 Q 955 360 955 400 L 945 440 L 810 440 A 100 100 0 0 0 610 440 L 390 440 A 100 100 0 0 0 190 440 L 80 440 Z"
+          fill="#e2e8f0" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Black Panoramic Glass Roof & Windows -->
+    <path d="M 270 330 L 380 230 L 640 230 L 730 330 Z" fill="#1a202c" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+    <!-- Front Glass -->
+    <path d="M 525 240 L 630 240 L 710 320 L 525 320 Z" fill="#718096" stroke="#111" stroke-width="6"/>
+    <!-- Rear Glass -->
+    <path d="M 390 240 L 505 240 L 505 320 L 300 320 Z" fill="#4a5568" stroke="#111" stroke-width="6"/>
+    <!-- Chrome Trim Surround -->
+    <path d="M 285 328 L 385 235 L 635 235 L 720 328 Z" fill="none" stroke="#cbd5e0" stroke-width="4"/>
+
+    <!-- 4-Door Cutlines & Flush Handles -->
+    <path d="M 515 240 L 515 435" stroke="#111" stroke-width="8"/>
+    <path d="M 330 330 L 310 435" stroke="#111" stroke-width="8"/>
+    <path d="M 680 330 L 660 435" stroke="#111" stroke-width="8"/>
+
+    <rect x="440" y="355" width="40" height="8" rx="3" fill="#a0aec0" stroke="#111" stroke-width="3"/>
+    <rect x="580" y="355" width="40" height="8" rx="3" fill="#a0aec0" stroke="#111" stroke-width="3"/>
+
+    <!-- Seamless Horizon Headlight / Taillight (Modern LED) -->
+    <polygon points="850,350 940,355 900,380" fill="#ecc94b" stroke="#111" stroke-width="6"/>
+    <polygon points="80,360 140,360 120,380 80,375" fill="#e53e3e" stroke="#111" stroke-width="5"/>
+
+    <!-- Lower Chrome Accent Trim -->
+    <path d="M 390 425 L 610 425" stroke="#a0aec0" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Luxury Multi-Spoke Alloy Wheels (Rear) -->
+    <g transform="translate(290, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="62" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#4a5568" stroke="#111" stroke-width="6"/>
+      <!-- Multi Spokes -->
+      <line x1="-48" y1="0" x2="48" y2="0" stroke="#111" stroke-width="8"/>
+      <line x1="0" y1="-48" x2="0" y2="48" stroke="#111" stroke-width="8"/>
+      <line x1="-34" y1="-34" x2="34" y2="34" stroke="#111" stroke-width="8"/>
+      <line x1="-34" y1="34" x2="34" y2="-34" stroke="#111" stroke-width="8"/>
+    </g>
+
+    <!-- Luxury Multi-Spoke Alloy Wheels (Front) -->
+    <g transform="translate(710, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="62" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#4a5568" stroke="#111" stroke-width="6"/>
+      <line x1="-48" y1="0" x2="48" y2="0" stroke="#111" stroke-width="8"/>
+      <line x1="0" y1="-48" x2="0" y2="48" stroke="#111" stroke-width="8"/>
+      <line x1="-34" y1="-34" x2="34" y2="34" stroke="#111" stroke-width="8"/>
+      <line x1="-34" y1="34" x2="34" y2="-34" stroke="#111" stroke-width="8"/>
+    </g>
+  </g>
+</svg>

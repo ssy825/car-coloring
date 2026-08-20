@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(80, 280) scale(0.85)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 460 L 60 300 Q 60 260 120 260 L 160 260 L 320 180 Q 420 160 560 180 L 760 290 L 920 330 Q 960 345 960 400 L 960 460 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Large Racing Rear Wing -->
+    <path d="M 60 260 L 150 260 L 130 310 L 80 310 Z" fill="#1a202c" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+    <line x1="100" y1="310" x2="90" y2="350" stroke="#111" stroke-width="12"/>
+
+    <!-- Main Aerodynamic Body (Vibrant Red) -->
+    <path d="M 80 430 L 150 320 Q 240 200 480 200 L 600 240 L 780 320 L 940 350 Q 960 360 960 410 L 950 440 L 820 440 A 100 100 0 0 0 620 440 L 380 440 A 100 100 0 0 0 180 440 L 80 440 Z"
+          fill="#e53e3e" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Black Carbon Side Skirt & Lower Diffuser -->
+    <path d="M 70 440 L 190 440 A 90 90 0 0 1 370 440 L 630 440 A 90 90 0 0 1 810 440 L 960 440 L 960 460 L 60 460 Z"
+          fill="#1a202c" stroke="#111" stroke-width="10"/>
+
+    <!-- Cockpit / Glass Canopy (Sleek Angled Tint) -->
+    <path d="M 320 220 L 480 220 L 660 310 L 260 310 Z" fill="#1a202c" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M 350 230 L 470 230 L 590 300 L 290 300 Z" fill="#4fd1c5" opacity="0.8"/>
+    <!-- Pillar -->
+    <line x1="475" y1="220" x2="495" y2="310" stroke="#111" stroke-width="10"/>
+
+    <!-- Aggressive Side Air Intake (Lamborghini Style) -->
+    <polygon points="450,335 560,335 500,415 420,415" fill="#111" stroke="#111" stroke-width="6" stroke-linejoin="round"/>
+    <polygon points="460,345 540,345 490,405 435,405" fill="#2d3748"/>
+
+    <!-- Body Character Accent Lines -->
+    <path d="M 180 340 L 440 340 L 580 360 L 880 360" fill="none" stroke="#c53030" stroke-width="8"/>
+    <line x1="280" y1="310" x2="260" y2="430" stroke="#111" stroke-width="8"/>
+
+    <!-- Sharp Headlight (Y-Shape LED) -->
+    <polygon points="840,340 930,350 890,375" fill="#ecc94b" stroke="#111" stroke-width="6"/>
+    <line x1="860" y1="350" x2="910" y2="355" stroke="#ffffff" stroke-width="4"/>
+
+    <!-- Rear Wheel (Ultra Wide Low-Profile) -->
+    <g transform="translate(280, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="60" fill="#e2e8f0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#e53e3e" stroke="#111" stroke-width="6"/>
+      <!-- Star Spokes -->
+      <line x1="0" y1="-50" x2="0" y2="50" stroke="#111" stroke-width="10"/>
+      <line x1="-48" y1="-16" x2="48" y2="16" stroke="#111" stroke-width="10"/>
+      <line x1="-30" y1="40" x2="30" y2="-40" stroke="#111" stroke-width="10"/>
+    </g>
+
+    <!-- Front Wheel -->
+    <g transform="translate(720, 440)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="60" fill="#e2e8f0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#e53e3e" stroke="#111" stroke-width="6"/>
+      <line x1="0" y1="-50" x2="0" y2="50" stroke="#111" stroke-width="10"/>
+      <line x1="-48" y1="-16" x2="48" y2="16" stroke="#111" stroke-width="10"/>
+      <line x1="-30" y1="40" x2="30" y2="-40" stroke="#111" stroke-width="10"/>
+    </g>
+  </g>
+</svg>

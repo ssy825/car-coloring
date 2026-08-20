@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(112, 280) scale(0.8)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 120 480 L 120 220 Q 120 180 160 180 L 520 180 L 640 280 L 860 300 Q 900 310 900 360 L 900 480 Q 900 500 860 500 L 780 500 A 130 130 0 0 0 520 500 L 400 500 A 130 130 0 0 0 140 500 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Main Body Shadow -->
+    <path d="M 140 470 L 140 240 L 510 240 L 625 330 L 860 345 L 860 470 Z" fill="#2d3748" />
+
+    <!-- Roof & Pillars (Black Hardtop) -->
+    <path d="M 140 240 L 510 240 L 510 330 L 140 330 Z" fill="#1a202c" stroke="#111" stroke-width="12"/>
+    <path d="M 510 240 L 625 330 L 510 330 Z" fill="#1a202c" stroke="#111" stroke-width="12"/>
+
+    <!-- Windows (Tinted Cyan/Dark) -->
+    <path d="M 160 255 L 310 255 L 310 320 L 160 320 Z" fill="#4a5568" stroke="#111" stroke-width="8"/>
+    <path d="M 330 255 L 490 255 L 490 320 L 330 320 Z" fill="#4a5568" stroke="#111" stroke-width="8"/>
+    <path d="M 515 255 L 605 320 L 515 320 Z" fill="#718096" stroke="#111" stroke-width="8"/>
+
+    <!-- Body Lower (Vibrant Olive / Military Green) -->
+    <path d="M 130 330 L 880 330 Q 890 340 890 420 L 890 470 L 780 470 A 120 120 0 0 0 540 470 L 380 470 A 120 120 0 0 0 140 470 L 130 470 Z"
+          fill="#48bb78" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Front Hood & Grille -->
+    <path d="M 625 330 L 860 345 L 885 410 L 625 410 Z" fill="#38a169" stroke="#111" stroke-width="12"/>
+    <rect x="850" y="370" width="35" height="35" rx="8" fill="#ecc94b" stroke="#111" stroke-width="8"/> <!-- Headlight -->
+
+    <!-- Side Door Lines & Handles -->
+    <path d="M 320 330 L 320 460" stroke="#111" stroke-width="10"/>
+    <path d="M 500 330 L 500 460" stroke="#111" stroke-width="10"/>
+    <rect x="260" y="355" width="30" height="10" rx="4" fill="#111"/>
+    <rect x="440" y="355" width="30" height="10" rx="4" fill="#111"/>
+
+    <!-- Snorkel & Offroad Accessories -->
+    <path d="M 610 240 L 610 340 L 635 340" fill="none" stroke="#111" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="610" cy="235" r="16" fill="#111"/>
+
+    <!-- Spare Tire on Back -->
+    <rect x="90" y="270" width="45" height="140" rx="14" fill="#1a202c" stroke="#111" stroke-width="10"/>
+
+    <!-- Fender Flares (Big Rugged Arches) -->
+    <path d="M 120 470 A 130 130 0 0 1 400 470" fill="none" stroke="#1a202c" stroke-width="26" stroke-linecap="round"/>
+    <path d="M 520 470 A 130 130 0 0 1 800 470" fill="none" stroke="#1a202c" stroke-width="26" stroke-linecap="round"/>
+
+    <!-- Wheels 1: Front (Rugged Mud Terrain) -->
+    <g transform="translate(660, 470)">
+      <circle cx="0" cy="0" r="105" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="100" fill="none" stroke="#2d3748" stroke-width="12" stroke-dasharray="14 10"/>
+      <circle cx="0" cy="0" r="62" fill="#e2e8f0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="28" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <line x1="-45" y1="0" x2="45" y2="0" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="-45" x2="0" y2="45" stroke="#111" stroke-width="10"/>
+      <line x1="-32" y1="-32" x2="32" y2="32" stroke="#111" stroke-width="10"/>
+      <line x1="-32" y1="32" x2="32" y2="-32" stroke="#111" stroke-width="10"/>
+    </g>
+
+    <!-- Wheels 2: Rear -->
+    <g transform="translate(260, 470)">
+      <circle cx="0" cy="0" r="105" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="100" fill="none" stroke="#2d3748" stroke-width="12" stroke-dasharray="14 10"/>
+      <circle cx="0" cy="0" r="62" fill="#e2e8f0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="28" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <line x1="-45" y1="0" x2="45" y2="0" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="-45" x2="0" y2="45" stroke="#111" stroke-width="10"/>
+      <line x1="-32" y1="-32" x2="32" y2="32" stroke="#111" stroke-width="10"/>
+      <line x1="-32" y1="32" x2="32" y2="-32" stroke="#111" stroke-width="10"/>
+    </g>
+  </g>
+</svg>

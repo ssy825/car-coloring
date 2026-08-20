@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(80, 270) scale(0.85)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 480 L 60 270 Q 60 240 100 240 L 400 240 L 420 160 Q 430 140 480 140 L 580 140 Q 630 140 640 160 L 660 240 L 680 320 L 920 340 Q 980 350 980 410 L 980 480 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Roof Lightbar Siren (Red & Blue Flashing Emergency LED) -->
+    <!-- Siren Glow -->
+    <rect x="420" y="140" width="120" height="40" rx="8" fill="#e53e3e" opacity="0.4" filter="blur(8px)"/>
+    <rect x="540" y="140" width="120" height="40" rx="8" fill="#3182ce" opacity="0.4" filter="blur(8px)"/>
+
+    <!-- Lightbar Housing -->
+    <rect x="440" y="160" width="200" height="35" rx="8" fill="#1a202c" stroke="#111" stroke-width="8"/>
+    <rect x="445" y="165" width="95" height="25" rx="5" fill="#e53e3e" stroke="#111" stroke-width="4"/> <!-- Red Left -->
+    <rect x="540" y="165" width="95" height="25" rx="5" fill="#3182ce" stroke="#111" stroke-width="4"/> <!-- Blue Right -->
+    <rect x="532" y="165" width="16" height="25" fill="#ffffff"/> <!-- White Strobe Core -->
+
+    <!-- Lightbar Mounts -->
+    <line x1="470" y1="195" x2="470" y2="215" stroke="#111" stroke-width="10"/>
+    <line x1="610" y1="195" x2="610" y2="215" stroke="#111" stroke-width="10"/>
+
+    <!-- Main SUV Police Body (Dark Blue Navy & White Doors) -->
+    <path d="M 80 450 L 80 250 Q 80 220 120 220 L 640 220 L 750 330 L 930 350 Q 960 360 960 410 L 950 450 L 810 450 A 100 100 0 0 0 610 450 L 390 450 A 100 100 0 0 0 190 450 L 80 450 Z"
+          fill="#1a365d" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- White Door Panels (Contrast Police Interceptor Design) -->
+    <path d="M 330 330 L 650 330 L 640 445 L 320 445 Z" fill="#ffffff" stroke="#111" stroke-width="8"/>
+
+    <!-- POLICE Lettering & Gold Star Badge -->
+    <text x="485" y="385" font-family="'Montserrat', sans-serif" font-weight="900" font-size="28" fill="#1a365d" text-anchor="middle" letter-spacing="3">POLICE</text>
+    <text x="485" y="415" font-family="'Montserrat', sans-serif" font-weight="700" font-size="14" fill="#718096" text-anchor="middle" letter-spacing="1">EMERGENCY 911</text>
+    <!-- Gold Star Shield -->
+    <polygon points="370,360 376,375 392,375 380,385 384,400 370,390 356,400 360,385 348,375 364,375" fill="#ecc94b" stroke="#d69e2e" stroke-width="2"/>
+
+    <!-- Tinted Windows -->
+    <path d="M 120 240 L 310 240 L 310 320 L 120 320 Z" fill="#4a5568" stroke="#111" stroke-width="8"/>
+    <path d="M 330 240 L 480 240 L 480 320 L 330 320 Z" fill="#cbd5e0" stroke="#111" stroke-width="8"/>
+    <path d="M 500 240 L 630 240 L 720 320 L 500 320 Z" fill="#cbd5e0" stroke="#111" stroke-width="8"/>
+
+    <!-- Front Steel Push Bumper / Bull Bar -->
+    <path d="M 940 330 L 980 330 L 980 450 L 940 450 Z" fill="none" stroke="#111" stroke-width="16" stroke-linejoin="round"/>
+    <line x1="940" y1="380" x2="980" y2="380" stroke="#111" stroke-width="10"/>
+
+    <!-- Headlight -->
+    <polygon points="870,350 945,355 915,385" fill="#ecc94b" stroke="#111" stroke-width="6"/>
+
+    <!-- Heavy Duty Pursuit Wheels (Rear) -->
+    <g transform="translate(290, 450)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="55" fill="#2d3748" stroke="#111" stroke-width="8"/>
+      <circle cx="0" cy="0" r="26" fill="#e2e8f0" stroke="#111" stroke-width="6"/> <!-- Chrome Center Cap -->
+    </g>
+
+    <!-- Heavy Duty Pursuit Wheels (Front) -->
+    <g transform="translate(710, 450)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="55" fill="#2d3748" stroke="#111" stroke-width="8"/>
+      <circle cx="0" cy="0" r="26" fill="#e2e8f0" stroke="#111" stroke-width="6"/>
+    </g>
+  </g>
+</svg>

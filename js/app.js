@@ -137,8 +137,13 @@ class CarColoringApp {
     CATEGORIES.forEach(cat => {
       const btn = document.createElement('button');
       btn.className = `cat-tab-btn ${cat.id === 'all' ? 'active' : ''}`;
-      btn.textContent = cat.name;
       btn.dataset.category = cat.id;
+      btn.innerHTML = `
+        <span class="cat-tab-img-wrap">
+          <img src="${cat.image}" alt="${cat.name}" loading="lazy" />
+        </span>
+        <span class="cat-tab-name">${cat.name}</span>
+      `;
       btn.addEventListener('click', () => {
         container.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');

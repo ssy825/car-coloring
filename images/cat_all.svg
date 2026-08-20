@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(100, 240) scale(0.82)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 520 L 60 360 Q 60 330 90 320 L 220 250 Q 250 200 300 180 L 580 180 Q 640 180 680 230 L 820 310 Q 880 330 900 380 L 900 520 Z"
+          fill="none" stroke="#ffffff" stroke-width="34" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Back Car: Green Offroad / Hatchback -->
+    <g transform="translate(40, -40)">
+      <path d="M 120 380 L 120 220 L 320 220 L 440 300 L 620 320 L 620 380 Z" fill="#38a169" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+      <path d="M 140 235 L 300 235 L 300 290 L 140 290 Z" fill="#a0aec0" stroke="#111" stroke-width="8"/>
+      <path d="M 320 235 L 420 290 L 320 290 Z" fill="#cbd5e0" stroke="#111" stroke-width="8"/>
+      <circle cx="220" cy="380" r="45" fill="#1a202c" stroke="#111" stroke-width="10"/>
+      <circle cx="520" cy="380" r="45" fill="#1a202c" stroke="#111" stroke-width="10"/>
+    </g>
+
+    <!-- Middle Car: Blue Sport Sedan -->
+    <g transform="translate(160, 40)">
+      <path d="M 80 360 L 140 260 L 420 260 L 560 330 L 720 340 Q 740 350 740 380 L 740 400 L 80 400 Z" fill="#3182ce" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+      <path d="M 160 275 L 280 275 L 280 325 L 160 325 Z" fill="#e2e8f0" stroke="#111" stroke-width="8"/>
+      <path d="M 300 275 L 400 275 L 480 325 L 300 325 Z" fill="#e2e8f0" stroke="#111" stroke-width="8"/>
+      <circle cx="220" cy="400" r="50" fill="#1a202c" stroke="#111" stroke-width="10"/>
+      <circle cx="620" cy="400" r="50" fill="#1a202c" stroke="#111" stroke-width="10"/>
+    </g>
+
+    <!-- Front Hero Car: Red Supercar -->
+    <g transform="translate(0, 100)">
+      <path d="M 80 400 L 140 310 Q 200 260 320 260 L 520 260 L 740 340 L 880 360 Q 920 370 920 410 L 920 430 L 780 430 A 70 70 0 0 0 640 430 L 320 430 A 70 70 0 0 0 180 430 L 80 430 Z"
+            fill="#e53e3e" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+      <!-- Rear Spoiler -->
+      <path d="M 60 300 L 120 300 L 110 330 L 70 330 Z" fill="#111"/>
+
+      <!-- Glass Cockpit -->
+      <path d="M 280 275 L 480 275 L 620 335 L 260 335 Z" fill="#1a202c" stroke="#111" stroke-width="10"/>
+      <path d="M 320 285 L 460 285 L 560 325 L 300 325 Z" fill="#4fd1c5" opacity="0.85"/>
+
+      <!-- Side Accent Air Scoop -->
+      <polygon points="460,355 520,355 490,395 440,395" fill="#111"/>
+
+      <!-- Front Headlight -->
+      <polygon points="850,370 895,375 870,390" fill="#ecc94b" stroke="#111" stroke-width="4"/>
+
+      <!-- Front Wheel -->
+      <g transform="translate(710, 430)">
+        <circle cx="0" cy="0" r="70" fill="#1a202c" stroke="#111" stroke-width="12"/>
+        <circle cx="0" cy="0" r="42" fill="#e2e8f0" stroke="#111" stroke-width="8"/>
+        <circle cx="0" cy="0" r="18" fill="#e53e3e"/>
+      </g>
+
+      <!-- Rear Wheel -->
+      <g transform="translate(250, 430)">
+        <circle cx="0" cy="0" r="70" fill="#1a202c" stroke="#111" stroke-width="12"/>
+        <circle cx="0" cy="0" r="42" fill="#e2e8f0" stroke="#111" stroke-width="8"/>
+        <circle cx="0" cy="0" r="18" fill="#e53e3e"/>
+      </g>
+    </g>
+  </g>
+</svg>
