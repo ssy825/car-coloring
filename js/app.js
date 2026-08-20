@@ -530,7 +530,7 @@ class CarColoringApp {
   }
 
   updateUI() {
-    this.setTool('fill');
+    this.setTool('brush');
   }
 }
 

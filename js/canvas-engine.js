@@ -22,10 +22,10 @@ export class CanvasEngine {
     this.panY = 0;
 
     // 현재 도구 상태
-    this.currentTool = 'fill'; // 'fill', 'brush', 'eraser', 'eyedropper', 'sticker'
-    this.previousToolBeforeBarrel = null; // S-Pen 버튼 누를 때 이전 도구 기억
+    this.currentTool = 'brush'; // 기본: 브러시 모드
+    this.previousToolBeforeBarrel = null;
     this.isBarrelButtonPressed = false;
-    this.currentStrokeIsEraser = false; // 현재 진행 중인 스트로크가 지우개인지 여부
+    this.currentStrokeIsEraser = false;
 
     this.currentColor = '#ff2d55';
     this.currentRgb = { r: 255, g: 45, b: 85, a: 255 };
@@ -308,18 +308,19 @@ export class CanvasEngine {
   handlePointerDown(e) {
     if (e.target !== this.container && !this.container.contains(e.target)) return;
 
+    // 손가락 터치 드로잉 차단 (Palm Rejection / 펜·마우스 전용 드로잉 모드)
+    // 2손가락 이상의 핀치 줌 / 패닝 / 탭 제스처는 touchstart/touchmove/touchend에서 전담 처리
+    if (e.pointerType === 'touch') {
+      this.isDrawing = false;
+      return;
+    }
+
     try {
       if (this.container.setPointerCapture && e.pointerId) {
         this.container.setPointerCapture(e.pointerId);
       }
     } catch (err) {
       // ignore
-    }
-
-    // 손가락 터치가 2개 이상이면 제스처 모드로 전환 (팜 리젝션)
-    if (e.pointerType === 'touch' && this.activePointers.size >= 1) {
-      this.isDrawing = false;
-      return;
     }
 
     this.activePointers.set(e.pointerId, {
@@ -383,6 +384,10 @@ export class CanvasEngine {
   }
 
   handlePointerMove(e) {
+    if (e.pointerType === 'touch') {
+      return;
+    }
+
     const { x, y } = this.clientToCanvas(e.clientX, e.clientY);
 
     if (this.onSPenStateChange) {
@@ -431,6 +436,10 @@ export class CanvasEngine {
   }
 
   handlePointerUp(e) {
+    if (e.pointerType === 'touch') {
+      return;
+    }
+
     this.activePointers.delete(e.pointerId);
 
     try {
@@ -458,11 +467,12 @@ export class CanvasEngine {
   }
 
   handlePointerCancel(e) {
-    this.emitDebugEvent('pointercancel', e);
+    if (e.pointerType === 'touch') {
+      return;
+    }
     this.activePointers.delete(e.pointerId);
     if (this.isDrawing) {
       this.isDrawing = false;
-      this.currentStrokeIsEraser = false;
       brushEngine.endStroke();
     }
   }
