@@ -1,4 +1,4 @@
-// 15종 자동차 도안 메타데이터
+// 자동차 도안 메타데이터 (24종)
 export const CARS_DATA = [
   {
     id: 'lamborghini',
@@ -50,15 +50,75 @@ export const CARS_DATA = [
   },
   {
     id: 'grandeur',
-    name: '현대 그랜저',
+    name: '현대 그랜저 GN7',
     nameEn: 'Hyundai Grandeur GN7',
     category: 'sedan',
     categoryName: '세단/승용',
     difficulty: '보통',
-    description: '심리스 호라이즌 램프와 우아한 실루엣을 지닌 대한민국 대표 프리미엄 플래그십 세단',
+    description: '심리스 호라이즌 램프와 우아한 실루엣을 지닌 대한민국 대표 7세대 플래그십 세단',
     image: 'images/grandeur.jpg',
     defaultColor: '#1c1c1e',
     accentColor: '#5e5ce6'
+  },
+  {
+    id: 'grandeur_ig',
+    name: '현대 그랜저 IG',
+    nameEn: 'Hyundai Grandeur IG',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '보통',
+    description: '캐스캐이딩 그릴과 세련된 LED 헤드램프의 역동적인 6세대 프리미엄 세단',
+    image: 'images/grandeur_ig.jpg',
+    defaultColor: '#1c1c1e',
+    accentColor: '#ff3b30'
+  },
+  {
+    id: 'grandeur_hg',
+    name: '현대 그랜저 HG',
+    nameEn: 'Hyundai Grandeur HG',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '보통',
+    description: '웅장한 폭포수 세로 그릴과 유려한 곡선의 플루이딕 스컬프처 5세대 그랜저',
+    image: 'images/grandeur_hg.jpg',
+    defaultColor: '#2c2c2e',
+    accentColor: '#ffd60a'
+  },
+  {
+    id: 'sonata_yf',
+    name: '현대 YF 쏘나타',
+    nameEn: 'Hyundai YF Sonata',
+    category: 'sedan',
+    categoryName: '세단/승용',
+    difficulty: '보통',
+    description: '과감하고 날렵한 4도어 쿠페형 실루엣과 크롬 사이드 캐릭터 라인의 대표 중형 세단',
+    image: 'images/sonata_yf.jpg',
+    defaultColor: '#0a84ff',
+    accentColor: '#ffffff'
+  },
+  {
+    id: 'freezer_truck',
+    name: '냉동 탑차',
+    nameEn: '1-Ton Refrigerated Box Truck',
+    category: 'commercial',
+    categoryName: '상용/대형',
+    difficulty: '보통',
+    description: '신선한 식품과 냉동 식자재를 안전하게 일정한 저온으로 배송하는 1톤 특수 냉동 탑차',
+    image: 'images/freezer_truck.jpg',
+    defaultColor: '#ffffff',
+    accentColor: '#0a84ff'
+  },
+  {
+    id: 'truck',
+    name: '일반 1톤 트럭',
+    nameEn: '1-Ton Cargo Flatbed Truck',
+    category: 'commercial',
+    categoryName: '상용/대형',
+    difficulty: '쉬움',
+    description: '물류와 짐을 든든하게 실어 나르는 친숙한 1톤 포터 카고 화물 트럭',
+    image: 'images/truck.jpg',
+    defaultColor: '#0a84ff',
+    accentColor: '#ffffff'
   },
   {
     id: 'police',
@@ -107,18 +167,6 @@ export const CARS_DATA = [
     image: 'images/school_bus.jpg',
     defaultColor: '#ffcc00',
     accentColor: '#000000'
-  },
-  {
-    id: 'truck',
-    name: '일반 1톤 트럭',
-    nameEn: '1-Ton Cargo Truck',
-    category: 'commercial',
-    categoryName: '상용/대형',
-    difficulty: '쉬움',
-    description: '물류와 짐을 든든하게 실어 나르는 친숙한 1톤 카고 화물 트럭',
-    image: 'images/truck.jpg',
-    defaultColor: '#0a84ff',
-    accentColor: '#ffffff'
   },
   {
     id: 'monster_truck',
