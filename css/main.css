@@ -67,8 +67,8 @@ body {
 
 /* 상단 헤더 툴바 */
 .top-header {
-  height: 58px;
-  min-height: 58px;
+  height: 56px;
+  min-height: 56px;
   background: rgba(21, 25, 34, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -80,33 +80,46 @@ body {
   z-index: 50;
 }
 
-/* 워크스페이스 중앙 영역 (도구함 + 캔버스 + 팔레트) */
+/* 워크스페이스 중앙 영역 (좌측 통합 사이드바 + 캔버스 뷰포트) */
 .studio-body {
   flex: 1;
-  display: grid;
-  grid-template-columns: 88px 1fr 320px;
-  height: calc(100vh - 58px);
+  display: flex;
+  height: calc(100vh - 56px);
   position: relative;
   overflow: hidden;
 }
 
-/* 좌측 도구 툴바 */
+/* 좌측 단일 통합 사이드바 (도구 + 브러시 + 굵기 + 팔레트) */
 .left-sidebar {
-  background: rgba(21, 25, 34, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  width: 290px;
+  min-width: 290px;
+  background: rgba(21, 25, 34, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid var(--border-glass);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 12px 6px;
-  gap: 8px;
+  padding: 14px 12px;
+  gap: 14px;
   z-index: 40;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
 }
 
-/* 중앙 캔버스 뷰포트 */
+.left-sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border-right: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 중앙 캔버스 뷰포트 (우측 전체 차지) */
 .canvas-viewport-container {
+  flex: 1;
+  height: 100%;
   position: relative;
   background: #11141b;
   background-image: 
@@ -127,24 +140,10 @@ body {
   position: relative;
 }
 
-/* 우측 팔레트 사이드바 */
-.right-sidebar {
-  background: rgba(21, 25, 34, 0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-left: 1px solid var(--border-glass);
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 16px;
-  z-index: 40;
-  overflow-y: auto;
-}
-
 /* 스크롤바 커스텀 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -158,17 +157,20 @@ body {
 }
 
 /* 반응형 모바일/세로 모드 대응 */
-@media (max-width: 900px) {
+@media (max-width: 800px) {
   .studio-body {
-    grid-template-columns: 72px 1fr;
-    grid-template-rows: 1fr auto;
+    flex-direction: column-reverse;
   }
-  .right-sidebar {
-    grid-column: 1 / -1;
-    height: 180px;
-    border-left: none;
+  .left-sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: 220px;
+    border-right: none;
     border-top: 1px solid var(--border-glass);
-    flex-direction: row;
-    overflow-x: auto;
+  }
+  .left-sidebar.collapsed {
+    height: 0;
+    width: 100%;
+    min-width: 100%;
   }
 }

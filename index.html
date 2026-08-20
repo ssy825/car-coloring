@@ -22,6 +22,9 @@
     <!-- 상단 헤더 툴바 -->
     <header class="top-header">
       <div class="brand-area">
+        <button class="sidebar-toggle-btn" id="btn-toggle-sidebar" title="사이드바 접기/펼치기 (T)">
+          <span class="toggle-icon">☰</span>
+        </button>
         <div class="brand-logo">
           <span class="logo-icon">🏎️</span>
           <span>CAR STUDIO</span>
@@ -40,14 +43,13 @@
         <button class="nav-arrow-btn" id="btn-next-car" title="다음 자동차">▶</button>
       </div>
 
-      <!-- 우측 기능 버튼들 -->
+      <!-- 우측 기능 버튼들 (사운드 제거) -->
       <div class="header-actions">
         <button class="icon-btn" id="btn-undo" title="실행 취소 (Ctrl+Z / 두 손가락 탭)" disabled>↩</button>
         <button class="icon-btn" id="btn-redo" title="다시 실행 (Ctrl+Y / 세 손가락 탭)" disabled>↪</button>
         <button class="icon-btn" id="btn-clear" title="색칠 초기화">🗑️</button>
-        <button class="icon-btn" id="btn-sound" title="사운드 On/Off">🔊</button>
         <button class="icon-btn" id="btn-fullscreen" title="전체화면 모드">⛶</button>
-        <button class="icon-btn" id="btn-help" title="도움말 & 제스처 가이드">❓</button>
+        <button class="icon-btn" id="btn-help" title="도움말 & 단축키 가이드">❓</button>
         <button class="primary-btn" id="btn-export-modal">
           <span>💾</span>
           <span>저장 / 내보내기</span>
@@ -55,89 +57,73 @@
       </div>
     </header>
 
-    <!-- 중앙 작업 공간 -->
+    <!-- 중앙 작업 공간 (좌측 통합 사이드바 + 캔버스 뷰포트) -->
     <main class="studio-body">
-      <!-- 좌측 도구 툴바 -->
-      <aside class="left-sidebar">
-        <button class="tool-btn" data-tool="fill" title="스마트 페인트통 채우기 (F)">
-          <span class="tool-icon">🪣</span>
-          <span class="tool-label">페인트</span>
-        </button>
-
-        <button class="tool-btn active" data-tool="brush" title="브러시 드로잉 (B)">
-          <span class="tool-icon">🖌️</span>
-          <span class="tool-label">브러시</span>
-        </button>
-
-        <button class="tool-btn" data-tool="eraser" title="지우개 (E)">
-          <span class="tool-icon">🧹</span>
-          <span class="tool-label">지우개</span>
-        </button>
-
-        <div class="tool-divider"></div>
-
-        <button class="tool-btn" data-tool="eyedropper" title="스포이드 색상 추출 (I)">
-          <span class="tool-icon">🎯</span>
-          <span class="tool-label">스포이드</span>
-        </button>
-
-        <button class="tool-btn" data-tool="sticker" title="데칼 & 스티커 스탬프">
-          <span class="tool-icon">⭐</span>
-          <span class="tool-label">스티커</span>
-        </button>
-      </aside>
-
-      <!-- 중앙 캔버스 뷰포트 -->
-      <section class="canvas-viewport-container">
-        <div id="canvas-viewport"></div>
-
-        <!-- 캔버스 플로팅 줌 컨트롤 -->
-        <div class="floating-zoom-control">
-          <button class="zoom-btn" id="btn-zoom-out" title="축소">−</button>
-          <span class="zoom-level-label" id="zoom-level-text">100%</span>
-          <button class="zoom-btn" id="btn-zoom-in" title="확대">+</button>
-          <button class="zoom-btn" id="btn-zoom-reset" title="화면 맞춤">⟲</button>
+      <!-- 좌측 단일 통합 컨트롤 사이드바 -->
+      <aside class="left-sidebar" id="left-sidebar">
+        <!-- 1. 메인 도구 선택기 -->
+        <div class="panel-section">
+          <div class="panel-title">도구 선택</div>
+          <div class="tools-segmented-group">
+            <button class="main-tool-btn" data-tool="fill" title="스마트 페인트통 채우기 (F)">
+              <span class="tool-icon">🪣</span>
+              <span class="tool-label">페인트</span>
+            </button>
+            <button class="main-tool-btn active" data-tool="brush" title="브러시 드로잉 (B)">
+              <span class="tool-icon">🖌️</span>
+              <span class="tool-label">브러시</span>
+            </button>
+            <button class="main-tool-btn" data-tool="eraser" title="지우개 (E)">
+              <span class="tool-icon">🧹</span>
+              <span class="tool-label">지우개</span>
+            </button>
+          </div>
         </div>
-      </section>
 
-      <!-- 우측 설정 & 팔레트 사이드바 -->
-      <aside class="right-sidebar">
-        <!-- 브러시 종류 & 세부 옵션 패널 (브러시/지우개 선택 시 노출) -->
-        <div class="panel-section" id="brush-settings-panel">
+        <!-- 2. 브러시 종류 (브러시 모드 시) -->
+        <div class="panel-section" id="brush-style-panel">
           <div class="panel-title">브러시 종류</div>
           <div class="brush-types-grid" id="brush-types-container"></div>
+        </div>
 
-          <div class="slider-group" style="margin-top: 10px;">
-            <div class="slider-header">
-              <span>브러시 굵기</span>
-              <span class="slider-val" id="brush-size-value">18px</span>
-            </div>
-            <input type="range" id="brush-size-slider" min="2" max="80" value="18">
+        <!-- 3. 브러시 굵기 5종 프리셋 -->
+        <div class="panel-section" id="brush-size-panel">
+          <div class="panel-title-row">
+            <span class="panel-title">브러시 굵기</span>
+            <span class="current-size-badge" id="current-size-badge">M (18px)</span>
           </div>
-
-          <div class="slider-group">
-            <div class="slider-header">
-              <span>불투명도</span>
-              <span class="slider-val" id="brush-opacity-value">100%</span>
-            </div>
-            <input type="range" id="brush-opacity-slider" min="5" max="100" value="100">
+          <div class="brush-sizes-preset-group" id="brush-size-presets">
+            <button class="size-preset-btn" data-size="4" data-label="XS" title="아주 얇게 (4px)">
+              <span class="size-dot dot-xs"></span>
+              <span class="size-text">XS</span>
+            </button>
+            <button class="size-preset-btn" data-size="10" data-label="S" title="얇게 (10px)">
+              <span class="size-dot dot-s"></span>
+              <span class="size-text">S</span>
+            </button>
+            <button class="size-preset-btn active" data-size="18" data-label="M" title="보통 (18px)">
+              <span class="size-dot dot-m"></span>
+              <span class="size-text">M</span>
+            </button>
+            <button class="size-preset-btn" data-size="32" data-label="L" title="굵게 (32px)">
+              <span class="size-dot dot-l"></span>
+              <span class="size-text">L</span>
+            </button>
+            <button class="size-preset-btn" data-size="56" data-label="XL" title="아주 굵게 (56px)">
+              <span class="size-dot dot-xl"></span>
+              <span class="size-text">XL</span>
+            </button>
           </div>
         </div>
 
-        <!-- 스티커 선택 패널 -->
-        <div class="panel-section hidden" id="stickers-panel">
-          <div class="panel-title">커스텀 데칼 스티커</div>
-          <div class="stickers-grid" id="stickers-list"></div>
-        </div>
-
-        <!-- 컬러 팔레트 섹션 -->
+        <!-- 4. 테마별 컬러 팔레트 -->
         <div class="panel-section">
           <div class="panel-title">테마별 팔레트</div>
           <div class="palette-tabs-container" id="palette-theme-tabs"></div>
           <div class="colors-grid" id="palette-colors-grid"></div>
         </div>
 
-        <!-- 커스텀 컬러 피커 & 프리뷰 -->
+        <!-- 5. 커스텀 컬러 선택 & 최근 색상 -->
         <div class="panel-section">
           <div class="panel-title">커스텀 색상</div>
           <div class="custom-color-bar">
@@ -151,12 +137,24 @@
           </div>
         </div>
 
-        <!-- 최근 사용한 색상 -->
         <div class="panel-section">
           <div class="panel-title">최근 사용한 색상</div>
           <div class="recent-colors-grid" id="recent-colors-grid"></div>
         </div>
       </aside>
+
+      <!-- 중앙 캔버스 뷰포트 (우측 전체 차지로 대폭 확대) -->
+      <section class="canvas-viewport-container">
+        <div id="canvas-viewport"></div>
+
+        <!-- 캔버스 플로팅 줌 컨트롤 -->
+        <div class="floating-zoom-control">
+          <button class="zoom-btn" id="btn-zoom-out" title="축소">−</button>
+          <span class="zoom-level-label" id="zoom-level-text">100%</span>
+          <button class="zoom-btn" id="btn-zoom-in" title="확대">+</button>
+          <button class="zoom-btn" id="btn-zoom-reset" title="화면 맞춤">⟲</button>
+        </div>
+      </section>
     </main>
 
     <!-- 모달 1: 자동차 도안 선택 갤러리 -->
@@ -246,7 +244,7 @@
                 <span>지우개 도구 사용</span>
               </div>
               <div class="help-card-body">
-                좌측 툴바의 <span class="help-highlight">🧹 지우개</span>(단축키 E)를 선택하면 색칠한 영역을 깔끔하게 지우고 수정할 수 있습니다.
+                좌측 툴바의 <span class="help-highlight">🧹 지우개</span>(단축키 E)를 선택하면 색칠한 영역을 지우고 수정할 수 있습니다.
               </div>
             </div>
 
@@ -267,7 +265,8 @@
               </div>
               <div class="help-card-body">
                 • <span class="help-highlight">두 손가락 더블 탭</span>: 실행 취소 (Undo)<br>
-                • <span class="help-highlight">세 손가락 탭</span>: 다시 실행 (Redo)
+                • <span class="help-highlight">세 손가락 탭</span>: 다시 실행 (Redo)<br>
+                • <span class="help-highlight">T 키</span>: 좌측 패널 접기/펼치기
               </div>
             </div>
           </div>

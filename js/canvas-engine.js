@@ -2,8 +2,6 @@
 
 import { performSmartFloodFill } from './flood-fill.js';
 import { brushEngine, BRUSH_TYPES } from './brushes.js';
-import { stickerManager } from './stickers.js';
-import { soundFx } from './audio-fx.js';
 
 export class CanvasEngine {
   constructor(container, options = {}) {
@@ -94,7 +92,7 @@ export class CanvasEngine {
     this.bgCanvas.className = 'layer bg-layer';
     this.bgCtx = this.bgCanvas.getContext('2d');
 
-    // Layer 2: Paint (사용자 채색 & 데칼)
+    // Layer 2: Paint (사용자 채색 & 드로잉)
     this.paintCanvas = document.createElement('canvas');
     this.paintCanvas.width = this.width;
     this.paintCanvas.height = this.height;
@@ -150,33 +148,26 @@ export class CanvasEngine {
    */
   async loadCar(car) {
     this.currentCar = car;
+    this.clearAll();
+
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
         this.lineArtImage = img;
-
-        // 원본 이미지 크기에 맞게 캔버스 크기 조정 (기본 1920x1080 또는 이미지 원본)
-        this.width = img.naturalWidth || 1920;
-        this.height = img.naturalHeight || 1080;
-
-        [this.bgCanvas, this.paintCanvas, this.lineCanvas, this.activeStrokeCanvas, this.uiCanvas].forEach(c => {
-          c.width = this.width;
-          c.height = this.height;
-        });
-        this.canvasWrapper.style.width = `${this.width}px`;
-        this.canvasWrapper.style.height = `${this.height}px`;
-
-        // 캔버스 초기화
-        this.drawDefaultBackground();
-        this.paintCtx.clearRect(0, 0, this.width, this.height);
         this.lineCtx.clearRect(0, 0, this.width, this.height);
 
-        // 도안 라인아트 그리기
-        this.lineCtx.drawImage(img, 0, 0, this.width, this.height);
+        // 1920x1080에 맞춰 도안 비율 유지 렌더링
+        const scale = Math.min((this.width * 0.94) / img.width, (this.height * 0.94) / img.height);
+        const drawW = img.width * scale;
+        const drawH = img.height * scale;
+        const drawX = (this.width - drawW) / 2;
+        const drawY = (this.height - drawH) / 2;
 
-        // 로컬 저장소에 저장된 채색 내역이 있는지 확인
-        this.restoreSavedState(car.id);
+        this.lineCtx.drawImage(img, drawX, drawY, drawW, drawH);
+
+        // 저장된 로컬스토리지 작업 복원 시도
+        this.loadSavedProgress(car.id);
 
         // 초기 상태 히스토리 저장
         this.history = [];
@@ -184,30 +175,32 @@ export class CanvasEngine {
         this.saveHistory();
 
         this.fitCanvasToContainer();
-        soundFx.playPop();
         resolve();
       };
-      img.onerror = reject;
+      img.onerror = err => {
+        console.error('Failed to load line art:', car.image, err);
+        reject(err);
+      };
       img.src = car.image;
     });
   }
 
   /**
-   * 컨테이너 크기에 맞춰 캔버스 화면 중앙 정렬 및 스케일 조정
+   * 뷰포트 크기에 맞춰 캔버스 자동 스케일 및 중앙 정렬
    */
   fitCanvasToContainer() {
     const rect = this.container.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    const padding = 20;
-    const availW = rect.width - padding * 2;
-    const availH = rect.height - padding * 2;
+    // 패딩 여백 40px 확보
+    const padding = 32;
+    const availW = Math.max(100, rect.width - padding);
+    const availH = Math.max(100, rect.height - padding);
 
-    const scaleW = availW / this.width;
-    const scaleH = availH / this.height;
-    const initialScale = Math.min(scaleW, scaleH, 1.2);
+    const scaleX = availW / this.width;
+    const scaleY = availH / this.height;
+    this.scale = Math.min(scaleX, scaleY);
 
-    this.scale = Math.max(this.minScale, Math.min(this.maxScale, initialScale));
     this.panX = (rect.width - this.width * this.scale) / 2;
     this.panY = (rect.height - this.height * this.scale) / 2;
 
@@ -217,22 +210,19 @@ export class CanvasEngine {
     }
   }
 
-  updateTransform() {
-    this.canvasWrapper.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
-  }
+  setZoom(newScale, clientX, clientY) {
+    const clampedScale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
+    if (clampedScale === this.scale) return;
 
-  setZoom(newScale, centerClientX = null, centerClientY = null) {
     const rect = this.container.getBoundingClientRect();
-    const cx = centerClientX !== null ? centerClientX - rect.left : rect.width / 2;
-    const cy = centerClientY !== null ? centerClientY - rect.top : rect.height / 2;
+    const cx = clientX !== undefined ? clientX - rect.left : rect.width / 2;
+    const cy = clientY !== undefined ? clientY - rect.top : rect.height / 2;
 
-    const prevScale = this.scale;
-    this.scale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
-
-    // 마우스/터치 중심점을 기준으로 줌
-    const factor = this.scale / prevScale;
+    // 줌 중심점 기준 패닝 보정
+    const factor = clampedScale / this.scale;
     this.panX = cx - (cx - this.panX) * factor;
     this.panY = cy - (cy - this.panY) * factor;
+    this.scale = clampedScale;
 
     this.updateTransform();
     if (this.onZoomChange) {
@@ -244,8 +234,12 @@ export class CanvasEngine {
     this.fitCanvasToContainer();
   }
 
+  updateTransform() {
+    this.canvasWrapper.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.scale})`;
+  }
+
   /**
-   * 화면 Client 좌표를 캔버스 내부 좌표로 변환
+   * 화면 좌표 -> 캔버스 내부 버퍼 좌표 (1920x1080) 변환
    */
   clientToCanvas(clientX, clientY) {
     const rect = this.container.getBoundingClientRect();
@@ -259,86 +253,65 @@ export class CanvasEngine {
   }
 
   /**
-   * 이벤트 리스너 등록 (Pointer Events & Touch Events)
+   * 포인터 및 터치 이벤트 바인딩
    */
   attachEvents() {
-    const container = this.container;
+    const el = this.container;
 
-    // 우클릭 및 컨텍스트 메뉴 기본 동작 차단
-    const preventContextMenu = e => {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    };
-    container.addEventListener('contextmenu', preventContextMenu, { capture: true });
-    window.addEventListener('contextmenu', preventContextMenu, { capture: true });
+    // S-Pen & 마우스 Pointer Events
+    el.addEventListener('pointerdown', this.handlePointerDown.bind(this));
+    el.addEventListener('pointermove', this.handlePointerMove.bind(this));
+    el.addEventListener('pointerup', this.handlePointerUp.bind(this));
+    el.addEventListener('pointercancel', this.handlePointerCancel.bind(this));
+    el.addEventListener('pointerleave', () => {
+      this.uiCtx.clearRect(0, 0, this.width, this.height);
+    });
 
-    // Pointer Events (pointerdown, pointermove, pointerup, pointercancel)
-    container.addEventListener('pointerdown', this.handlePointerDown.bind(this), { passive: false });
-    window.addEventListener('pointermove', this.handlePointerMove.bind(this), { passive: false });
-    window.addEventListener('pointerup', this.handlePointerUp.bind(this), { passive: false });
-    window.addEventListener('pointercancel', this.handlePointerCancel.bind(this), { passive: false });
-    container.addEventListener('pointerleave', this.handlePointerLeave.bind(this), { passive: false });
+    // 멀티터치 제스처 (Pinch Zoom & Undo/Redo)
+    el.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
+    el.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+    el.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
 
-    // Wheel (데스크톱 마우스 휠 줌/팬)
-    container.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
+    // 마우스 휠 줌
+    el.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
 
-    // Touch Events for multi-touch (2-finger tap undo, 3-finger tap redo, pinch)
-    container.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-    container.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    container.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-  }
-
-  handlePointerLeave(e) {
-    this.uiCtx.clearRect(0, 0, this.width, this.height);
-    if (this.onSPenStateChange) {
-      this.onSPenStateChange({
-        tool: this.currentTool,
-        isPen: false,
-        pressure: 0,
-        isDrawing: false
-      });
-    }
+    // 컨텍스트 메뉴(우클릭) 방지 (S-Pen 버튼 클릭 호환)
+    el.addEventListener('contextmenu', e => e.preventDefault());
   }
 
   getEffectiveTool() {
+    if (this.isBarrelButtonPressed) {
+      return 'eraser';
+    }
     return this.currentTool;
   }
 
   handlePointerDown(e) {
-    if (e.target !== this.container && !this.container.contains(e.target)) return;
-
-    // 손가락 터치 드로잉 차단 (Palm Rejection / 펜·마우스 전용 드로잉 모드)
-    // 2손가락 이상의 핀치 줌 / 패닝 / 탭 제스처는 touchstart/touchmove/touchend에서 전담 처리
-    if (e.pointerType === 'touch') {
-      this.isDrawing = false;
+    // 멀티터치 핀치 중일 땐 그리지 않음
+    if (e.pointerType === 'touch' && e.isPrimary === false) {
       return;
     }
 
+    // S-Pen 사이드 버튼(배럴 버튼) 감지 (buttons === 2 or 32)
+    if (e.pointerType === 'pen' && (e.buttons === 2 || e.buttons === 32)) {
+      this.isBarrelButtonPressed = true;
+    } else {
+      this.isBarrelButtonPressed = false;
+    }
+
+    this.activePointers.set(e.pointerId, {
+      startX: e.clientX,
+      startY: e.clientY,
+      type: e.pointerType
+    });
+
     try {
-      if (this.container.setPointerCapture && e.pointerId) {
-        this.container.setPointerCapture(e.pointerId);
-      }
+      this.container.setPointerCapture(e.pointerId);
     } catch (err) {
       // ignore
     }
 
-    this.activePointers.set(e.pointerId, {
-      x: e.clientX,
-      y: e.clientY,
-      type: e.pointerType
-    });
-
-    if (this.onSPenStateChange) {
-      this.onSPenStateChange({
-        tool: this.currentTool,
-        isPen: e.pointerType === 'pen' || e.pointerType === 'eraser',
-        pressure: e.pressure || 0,
-        isDrawing: true
-      });
-    }
-
-    const effectiveTool = this.currentTool;
+    const effectiveTool = this.getEffectiveTool();
     const { x, y } = this.clientToCanvas(e.clientX, e.clientY);
 
     // 유효한 드로잉 범위인지 확인
@@ -357,17 +330,6 @@ export class CanvasEngine {
         42
       );
       if (success) {
-        soundFx.playFill();
-        this.saveHistory();
-      }
-    } else if (effectiveTool === 'eyedropper') {
-      // 색상 추출
-      this.pickColorAt(x, y);
-    } else if (effectiveTool === 'sticker') {
-      // 스티커 스탬프
-      if (stickerManager.selectedSticker) {
-        stickerManager.drawSticker(this.paintCtx, stickerManager.selectedSticker, x, y, 70);
-        soundFx.playPop();
         this.saveHistory();
       }
     } else if (effectiveTool === 'brush' || effectiveTool === 'eraser') {
@@ -379,7 +341,6 @@ export class CanvasEngine {
       const isEraser = (effectiveTool === 'eraser');
       const pressure = e.pressure !== undefined && e.pressure > 0 ? e.pressure : 0.5;
       brushEngine.startStroke(this.paintCtx, x, y, pressure, this.currentColor, isEraser);
-      soundFx.playBrushStroke();
     }
   }
 
@@ -392,7 +353,7 @@ export class CanvasEngine {
 
     if (this.onSPenStateChange) {
       this.onSPenStateChange({
-        tool: this.currentTool,
+        tool: this.getEffectiveTool(),
         isPen: e.pointerType === 'pen' || e.pointerType === 'eraser',
         pressure: e.pressure || 0,
         isDrawing: this.isDrawing
@@ -404,7 +365,7 @@ export class CanvasEngine {
 
     if (!this.isDrawing) return;
 
-    const effectiveTool = this.currentTool;
+    const effectiveTool = this.getEffectiveTool();
 
     if (effectiveTool === 'eraser') {
       const pressure = e.pressure !== undefined && e.pressure > 0 ? e.pressure : 0.5;
@@ -456,9 +417,11 @@ export class CanvasEngine {
       this.saveHistory();
     }
 
+    this.isBarrelButtonPressed = false;
+
     if (this.onSPenStateChange) {
       this.onSPenStateChange({
-        tool: this.currentTool,
+        tool: this.getEffectiveTool(),
         isPen: e.pointerType === 'pen',
         pressure: 0,
         isDrawing: false
@@ -475,6 +438,7 @@ export class CanvasEngine {
       this.isDrawing = false;
       brushEngine.endStroke();
     }
+    this.isBarrelButtonPressed = false;
   }
 
   /**
@@ -580,7 +544,6 @@ export class CanvasEngine {
       const now = Date.now();
       if (now - this.lastTapTime < 350) {
         this.undo();
-        soundFx.playUndo();
       }
       this.lastTapTime = now;
     }
@@ -588,35 +551,13 @@ export class CanvasEngine {
     // 3-Finger 탭 제스처 -> Redo
     if (this.touchCountAtStart === 3 && e.touches.length === 0) {
       this.redo();
-      soundFx.playPop();
     }
   }
 
   handleWheel(e) {
     e.preventDefault();
-    if (e.ctrlKey || e.metaKey || true) {
-      const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
-      this.setZoom(this.scale * zoomFactor, e.clientX, e.clientY);
-    }
-  }
-
-  /**
-   * 스포이드 색상 추출
-   */
-  pickColorAt(x, y) {
-    x = Math.floor(x);
-    y = Math.floor(y);
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
-
-    // Paint 레이어 우선, 없으면 흰색
-    const pixel = this.paintCtx.getImageData(x, y, 1, 1).data;
-    if (pixel[3] > 10) {
-      const hex = '#' + [pixel[0], pixel[1], pixel[2]].map(c => c.toString(16).padStart(2, '0')).join('');
-      if (this.onColorPicked) {
-        this.onColorPicked(hex);
-      }
-      soundFx.playClick();
-    }
+    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.89;
+    this.setZoom(this.scale * zoomFactor, e.clientX, e.clientY);
   }
 
   /**
@@ -649,9 +590,7 @@ export class CanvasEngine {
       this.paintCtx.putImageData(snapshot, 0, 0);
       this.notifyHistoryChange();
       this.autoSave();
-      return true;
     }
-    return false;
   }
 
   redo() {
@@ -661,15 +600,7 @@ export class CanvasEngine {
       this.paintCtx.putImageData(snapshot, 0, 0);
       this.notifyHistoryChange();
       this.autoSave();
-      return true;
     }
-    return false;
-  }
-
-  clearPaint() {
-    this.paintCtx.clearRect(0, 0, this.width, this.height);
-    this.saveHistory();
-    soundFx.playUndo();
   }
 
   notifyHistoryChange() {
@@ -682,21 +613,36 @@ export class CanvasEngine {
   }
 
   /**
-   * 로컬 스토리지 자동 저장
+   * 채색 초기화
+   */
+  clearPaint() {
+    this.paintCtx.clearRect(0, 0, this.width, this.height);
+    this.saveHistory();
+  }
+
+  clearAll() {
+    this.paintCtx.clearRect(0, 0, this.width, this.height);
+    this.lineCtx.clearRect(0, 0, this.width, this.height);
+    this.activeStrokeCtx.clearRect(0, 0, this.width, this.height);
+    this.uiCtx.clearRect(0, 0, this.width, this.height);
+  }
+
+  /**
+   * 자동 저장 및 복원 (LocalStorage)
    */
   autoSave() {
     if (!this.currentCar) return;
     try {
       const dataUrl = this.paintCanvas.toDataURL('image/png');
-      localStorage.setItem(`car_coloring_${this.currentCar.id}`, dataUrl);
+      localStorage.setItem(`car_art_${this.currentCar.id}`, dataUrl);
     } catch (e) {
-      console.warn('AutoSave to localStorage failed:', e);
+      console.warn('AutoSave failed (quota exceeded?):', e);
     }
   }
 
-  restoreSavedState(carId) {
+  loadSavedProgress(carId) {
     try {
-      const saved = localStorage.getItem(`car_coloring_${carId}`);
+      const saved = localStorage.getItem(`car_art_${carId}`);
       if (saved) {
         const img = new Image();
         img.onload = () => {
@@ -706,79 +652,92 @@ export class CanvasEngine {
         img.src = saved;
       }
     } catch (e) {
-      console.warn('Failed to restore saved car state:', e);
+      console.warn('Failed to load saved art:', e);
     }
   }
 
   /**
-   * 완성 작품을 고화질 PNG로 합성 내보내기
-   * @param {string} backgroundType - 'white', 'transparent', 'studio'
+   * 최종 이미지 병합 및 내보내기
    */
-  exportMergedImage(backgroundType = 'white') {
+  exportMergedCanvas(bgType = 'white') {
     const exportCanvas = document.createElement('canvas');
     exportCanvas.width = this.width;
     exportCanvas.height = this.height;
     const ctx = exportCanvas.getContext('2d');
 
-    // 1. 배경
-    if (backgroundType === 'white') {
+    // 1. 배경 렌더링
+    if (bgType === 'white') {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, this.width, this.height);
-    } else if (backgroundType === 'studio') {
-      // 모던 스튜디오 그라데이션
-      const grad = ctx.createLinearGradient(0, 0, 0, this.height);
-      grad.addColorStop(0, '#f5f7fa');
-      grad.addColorStop(1, '#c3cfe2');
+    } else if (bgType === 'studio') {
+      const grad = ctx.createRadialGradient(
+        this.width / 2, this.height * 0.45, 100,
+        this.width / 2, this.height * 0.5, this.width * 0.7
+      );
+      grad.addColorStop(0, '#2c3647');
+      grad.addColorStop(1, '#0e1219');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // 2. 채색 레이어
+    // 2. 채색 레이어 합성
     ctx.drawImage(this.paintCanvas, 0, 0);
 
-    // 3. 도안 외곽선 레이어 (multiply)
+    // 3. 도안 외곽선 레이어 합성 (Multiply)
     ctx.save();
     ctx.globalCompositeOperation = 'multiply';
     ctx.drawImage(this.lineCanvas, 0, 0);
     ctx.restore();
 
-    return exportCanvas.toDataURL('image/png');
+    // 4. 서명 & 워터마크 브랜딩
+    ctx.save();
+    ctx.fillStyle = bgType === 'studio' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.3)';
+    ctx.font = 'bold 20px Outfit, Montserrat, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('🏎️ CAR COLORING STUDIO PRO', this.width - 40, this.height - 30);
+    ctx.restore();
+
+    return exportCanvas;
   }
 
-  downloadImage(fileName = null, backgroundType = 'white') {
-    const dataUrl = this.exportMergedImage(backgroundType);
-    const carName = this.currentCar ? this.currentCar.name.replace(/\s+/g, '_') : 'my_car';
-    const finalName = fileName || `${carName}_colored.png`;
+  exportMergedImage(bgType = 'white') {
+    const canvas = this.exportMergedCanvas(bgType);
+    return canvas.toDataURL('image/png');
+  }
+
+  downloadImage(filename, bgType = 'white') {
+    const name = filename || `${this.currentCar ? this.currentCar.name : 'my_car'}_coloring.png`;
+    const dataUrl = this.exportMergedImage(bgType);
 
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = finalName;
+    a.download = name;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    soundFx.playSuccess();
   }
 
   printArtwork() {
     const dataUrl = this.exportMergedImage('white');
     const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>${this.currentCar ? this.currentCar.name : 'Car Coloring'}</title>
-          <style>
-            body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
-            img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-          </style>
-        </head>
-        <body>
-          <img src="${dataUrl}" onload="window.print(); window.close();" />
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>인쇄 - ${this.currentCar ? this.currentCar.name : '자동차 색칠'}</title>
+        <style>
+          body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+          img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+          @page { size: landscape; margin: 10mm; }
+        </style>
+      </head>
+      <body>
+        <img src="${dataUrl}" onload="window.print();window.close();" />
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
   }
 }

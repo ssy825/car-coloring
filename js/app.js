@@ -4,8 +4,14 @@ import { CARS_DATA, CATEGORIES } from './cars-data.js';
 import { CanvasEngine } from './canvas-engine.js';
 import { PaletteManager, THEME_PALETTES } from './palette.js';
 import { BRUSH_TYPES, brushEngine } from './brushes.js';
-import { STICKERS, stickerManager } from './stickers.js';
-import { soundFx } from './audio-fx.js';
+
+const BRUSH_SIZE_CONFIG = {
+  '4': { label: 'XS (4px)', size: 4 },
+  '10': { label: 'S (10px)', size: 10 },
+  '18': { label: 'M (18px)', size: 18 },
+  '32': { label: 'L (32px)', size: 32 },
+  '56': { label: 'XL (56px)', size: 56 }
+};
 
 class CarColoringApp {
   constructor() {
@@ -20,7 +26,6 @@ class CarColoringApp {
     this.renderCategoryTabs();
     this.renderCarGallery();
     this.renderBrushTypes();
-    this.renderStickers();
     this.bindEvents();
 
     // 첫 번째 차량 로드 (기본: 람보르기니)
@@ -30,22 +35,19 @@ class CarColoringApp {
 
   cacheElements() {
     this.viewport = document.getElementById('canvas-viewport');
+    this.sidebar = document.getElementById('left-sidebar');
+    this.btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     this.carTitle = document.getElementById('current-car-name');
     this.carCategory = document.getElementById('current-car-category');
     this.carCount = document.getElementById('current-car-count');
 
-    // 툴 버튼들
+    // 툴 버튼들 & 패널
     this.toolBtns = document.querySelectorAll('[data-tool]');
+    this.brushStylePanel = document.getElementById('brush-style-panel');
+    this.brushSizePanel = document.getElementById('brush-size-panel');
     this.brushTypeContainer = document.getElementById('brush-types-container');
-    this.brushSettingsPanel = document.getElementById('brush-settings-panel');
-    this.stickersPanel = document.getElementById('stickers-panel');
-    this.stickersList = document.getElementById('stickers-list');
-
-    // 슬라이더들
-    this.sizeSlider = document.getElementById('brush-size-slider');
-    this.sizeValue = document.getElementById('brush-size-value');
-    this.opacitySlider = document.getElementById('brush-opacity-slider');
-    this.opacityValue = document.getElementById('brush-opacity-value');
+    this.brushSizePresetBtns = document.querySelectorAll('.size-preset-btn');
+    this.currentSizeBadge = document.getElementById('current-size-badge');
 
     // 팔레트 요소들
     this.paletteTabs = document.getElementById('palette-theme-tabs');
@@ -61,7 +63,6 @@ class CarColoringApp {
     this.btnCarsModal = document.getElementById('btn-cars-modal');
     this.btnExportModal = document.getElementById('btn-export-modal');
     this.btnFullscreen = document.getElementById('btn-fullscreen');
-    this.btnSound = document.getElementById('btn-sound');
 
     // 줌 컨트롤
     this.btnZoomIn = document.getElementById('btn-zoom-in');
@@ -80,20 +81,21 @@ class CarColoringApp {
     this.palette = new PaletteManager((effectiveColor, hexColor) => {
       if (this.canvasEngine) {
         this.canvasEngine.currentColor = hexColor;
-        this.canvasEngine.brushOpacity = this.palette.opacity;
+        this.canvasEngine.brushOpacity = 1.0;
         const rgb = this.palette.hexToRgb(hexColor);
         if (rgb) {
           this.canvasEngine.currentRgb = {
             r: rgb.r,
             g: rgb.g,
             b: rgb.b,
-            a: Math.floor(this.palette.opacity * 255)
+            a: 255
           };
         }
       }
       this.activeColorPreview.style.backgroundColor = effectiveColor;
       this.customColorInput.value = hexColor;
-      this.renderRecentColors();
+      this.updateThemeColorsActiveState();
+      this.updateRecentColorsActiveState();
     });
 
     this.renderPaletteThemes();
@@ -106,10 +108,6 @@ class CarColoringApp {
       onHistoryChange: state => {
         this.btnUndo.disabled = !state.canUndo;
         this.btnRedo.disabled = !state.canRedo;
-      },
-      onColorPicked: hex => {
-        this.palette.setColor(hex);
-        this.setTool('fill');
       },
       onZoomChange: zoomPercent => {
         this.zoomLevelText.textContent = `${zoomPercent}%`;
@@ -145,7 +143,6 @@ class CarColoringApp {
         container.querySelectorAll('.cat-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.filterCarGallery(cat.id);
-        soundFx.playClick();
       });
       container.appendChild(btn);
     });
@@ -188,7 +185,7 @@ class CarColoringApp {
   renderBrushTypes() {
     this.brushTypeContainer.innerHTML = '';
     Object.values(BRUSH_TYPES).forEach(b => {
-      if (b.id === 'eraser') return; // 지우개는 메인 툴바에서 선택
+      if (b.id === 'eraser') return; // 지우개는 메인 툴에서 독립 제공
       const btn = document.createElement('button');
       btn.className = `brush-type-btn ${b.id === brushEngine.currentBrush ? 'active' : ''}`;
       btn.dataset.brushId = b.id;
@@ -203,51 +200,15 @@ class CarColoringApp {
         btn.classList.add('active');
         brushEngine.setBrush(b.id);
         this.setTool('brush');
-        soundFx.playClick();
       });
 
       this.brushTypeContainer.appendChild(btn);
     });
   }
 
-  renderStickers() {
-    this.stickersList.innerHTML = '';
-    STICKERS.forEach((st, idx) => {
-      const btn = document.createElement('button');
-      btn.className = `sticker-item-btn ${idx === 0 ? 'active' : ''}`;
-      btn.title = st.name;
-
-      // 미니 캔버스 프리뷰
-      const previewCanvas = document.createElement('canvas');
-      previewCanvas.width = 44;
-      previewCanvas.height = 44;
-      const ctx = previewCanvas.getContext('2d');
-      stickerManager.drawSticker(ctx, st, 22, 22, 36);
-
-      btn.appendChild(previewCanvas);
-      const label = document.createElement('span');
-      label.textContent = st.name;
-      btn.appendChild(label);
-
-      btn.addEventListener('click', () => {
-        this.stickersList.querySelectorAll('.sticker-item-btn').forEach(el => el.classList.remove('active'));
-        btn.classList.add('active');
-        stickerManager.selectedSticker = st;
-        this.setTool('sticker');
-        soundFx.playClick();
-      });
-
-      if (idx === 0) {
-        stickerManager.selectedSticker = st;
-      }
-
-      this.stickersList.appendChild(btn);
-    });
-  }
-
   renderPaletteThemes() {
     this.paletteTabs.innerHTML = '';
-    Object.entries(THEME_PALETTES).forEach(([key, theme], idx) => {
+    Object.entries(THEME_PALETTES).forEach(([key, theme]) => {
       const btn = document.createElement('button');
       btn.className = `palette-tab-btn ${key === this.palette.currentTheme ? 'active' : ''}`;
       btn.innerHTML = `<span>${theme.icon}</span> ${theme.name}`;
@@ -256,7 +217,6 @@ class CarColoringApp {
         btn.classList.add('active');
         this.palette.currentTheme = key;
         this.renderThemeColors(key);
-        soundFx.playClick();
       });
       this.paletteTabs.appendChild(btn);
     });
@@ -275,13 +235,18 @@ class CarColoringApp {
       btn.title = hex;
 
       btn.addEventListener('click', () => {
-        this.palette.setColor(hex);
-        this.paletteColors.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        soundFx.playPop();
+        this.palette.setColor(hex, true);
+        this.renderRecentColors();
       });
 
       this.paletteColors.appendChild(btn);
+    });
+  }
+
+  updateThemeColorsActiveState() {
+    const currentHex = this.palette.currentColor.toLowerCase();
+    this.paletteColors.querySelectorAll('.color-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.color && c.dataset.color.toLowerCase() === currentHex);
     });
   }
 
@@ -292,30 +257,50 @@ class CarColoringApp {
       btn.className = `recent-color-chip ${hex.toLowerCase() === this.palette.currentColor.toLowerCase() ? 'active' : ''}`;
       btn.style.backgroundColor = hex;
       btn.dataset.color = hex;
+      btn.title = hex;
 
       btn.addEventListener('click', () => {
         this.palette.setColor(hex, false);
-        soundFx.playClick();
       });
 
       this.recentColorsGrid.appendChild(btn);
     });
   }
 
+  updateRecentColorsActiveState() {
+    const currentHex = this.palette.currentColor.toLowerCase();
+    this.recentColorsGrid.querySelectorAll('.recent-color-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.color && btn.dataset.color.toLowerCase() === currentHex);
+    });
+  }
+
+  setBrushSizePreset(sizeNumber) {
+    const size = parseInt(sizeNumber, 10);
+    this.canvasEngine.brushSize = size;
+    brushEngine.setSize(size);
+
+    this.brushSizePresetBtns.forEach(btn => {
+      const btnSize = parseInt(btn.dataset.size, 10);
+      btn.classList.toggle('active', btnSize === size);
+    });
+
+    const info = BRUSH_SIZE_CONFIG[size] || { label: `${size}px` };
+    if (this.currentSizeBadge) {
+      this.currentSizeBadge.textContent = info.label;
+    }
+  }
+
   setTool(toolName) {
     this.canvasEngine.currentTool = toolName;
 
     this.toolBtns.forEach(btn => {
-      if (btn.dataset.tool === toolName) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+      btn.classList.toggle('active', btn.dataset.tool === toolName);
     });
 
-    // 브러시 설정 패널 노출 여부 및 상태 동기화
+    // 패널 가시성 제어
     if (toolName === 'brush') {
-      this.brushSettingsPanel.classList.remove('hidden');
+      this.brushStylePanel.classList.remove('hidden');
+      this.brushSizePanel.classList.remove('hidden');
       if (!BRUSH_TYPES[brushEngine.currentBrush]) {
         brushEngine.setBrush('pen');
       }
@@ -325,68 +310,73 @@ class CarColoringApp {
         });
       }
     } else if (toolName === 'eraser') {
-      this.brushSettingsPanel.classList.remove('hidden');
+      this.brushStylePanel.classList.add('hidden');
+      this.brushSizePanel.classList.remove('hidden');
     } else {
-      this.brushSettingsPanel.classList.add('hidden');
-    }
-
-    // 스티커 패널 노출 여부
-    if (toolName === 'sticker') {
-      this.stickersPanel.classList.remove('hidden');
-    } else {
-      this.stickersPanel.classList.add('hidden');
+      // fill 모드
+      this.brushStylePanel.classList.add('hidden');
+      this.brushSizePanel.classList.add('hidden');
     }
 
     // 커서 스타일
     if (toolName === 'fill') {
       this.viewport.style.cursor = 'crosshair';
-    } else if (toolName === 'eyedropper') {
-      this.viewport.style.cursor = 'copy';
-    } else if (toolName === 'sticker') {
-      this.viewport.style.cursor = 'cell';
     } else {
       this.viewport.style.cursor = 'default';
     }
   }
 
+  toggleSidebar() {
+    const isCollapsed = this.sidebar.classList.toggle('collapsed');
+    this.btnToggleSidebar.classList.toggle('active', !isCollapsed);
+
+    // 사이드바 트랜지션 완료 후 캔버스 리사이즈
+    setTimeout(() => {
+      if (this.canvasEngine) {
+        this.canvasEngine.fitCanvasToContainer();
+      }
+    }, 320);
+  }
+
   bindEvents() {
-    // 툴바 도구 선택
+    // 사이드바 토글 버튼
+    this.btnToggleSidebar.addEventListener('click', () => {
+      this.toggleSidebar();
+    });
+
+    // 메인 도구 선택 (페인트, 브러시, 지우개)
     this.toolBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const tool = btn.dataset.tool;
         this.setTool(tool);
-        soundFx.playClick();
       });
     });
 
-    // 브러시 크기 슬라이더
-    this.sizeSlider.addEventListener('input', e => {
-      const val = parseInt(e.target.value, 10);
-      this.sizeValue.textContent = `${val}px`;
-      this.canvasEngine.brushSize = val;
+    // 브러시 굵기 5종 프리셋 버튼
+    this.brushSizePresetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.setBrushSizePreset(btn.dataset.size);
+      });
     });
 
-    // 불투명도 슬라이더
-    this.opacitySlider.addEventListener('input', e => {
-      const val = parseInt(e.target.value, 10);
-      this.opacityValue.textContent = `${val}%`;
-      this.palette.setOpacity(val / 100);
-    });
-
-    // 커스텀 컬러 인풋 (HTML5 color)
+    // 커스텀 컬러 인풋: 실시간 드래그 시에는 색상과 프리뷰만 적용 (최근 색상 목록 유지)
     this.customColorInput.addEventListener('input', e => {
-      this.palette.setColor(e.target.value);
+      this.palette.setColor(e.target.value, false);
+    });
+
+    // 커스텀 컬러 선택 완료 시(창 닫기/확정 시)에만 최근 사용한 색상에 1회 추가
+    this.customColorInput.addEventListener('change', e => {
+      this.palette.setColor(e.target.value, true);
+      this.renderRecentColors();
     });
 
     // Undo / Redo / Clear
     this.btnUndo.addEventListener('click', () => {
       this.canvasEngine.undo();
-      soundFx.playUndo();
     });
 
     this.btnRedo.addEventListener('click', () => {
       this.canvasEngine.redo();
-      soundFx.playPop();
     });
 
     this.btnClear.addEventListener('click', () => {
@@ -398,17 +388,14 @@ class CarColoringApp {
     // 줌 버튼들
     this.btnZoomIn.addEventListener('click', () => {
       this.canvasEngine.setZoom(this.canvasEngine.scale * 1.25);
-      soundFx.playClick();
     });
 
     this.btnZoomOut.addEventListener('click', () => {
       this.canvasEngine.setZoom(this.canvasEngine.scale * 0.8);
-      soundFx.playClick();
     });
 
     this.btnZoomReset.addEventListener('click', () => {
       this.canvasEngine.resetZoom();
-      soundFx.playClick();
     });
 
     // 차량 선택 이전/다음 버튼
@@ -435,13 +422,6 @@ class CarColoringApp {
         document.exitFullscreen();
         this.btnFullscreen.innerHTML = '<span>⛶</span>';
       }
-    });
-
-    // 사운드 토글
-    this.btnSound.addEventListener('click', () => {
-      const enabled = soundFx.toggle();
-      this.btnSound.classList.toggle('muted', !enabled);
-      this.btnSound.innerHTML = enabled ? '<span>🔊</span>' : '<span>🔇</span>';
     });
 
     // 모달 열기/닫기
@@ -486,20 +466,18 @@ class CarColoringApp {
         this.setTool('fill');
       } else if (e.key.toLowerCase() === 'e') {
         this.setTool('eraser');
-      } else if (e.key.toLowerCase() === 'i') {
-        this.setTool('eyedropper');
+      } else if (e.key.toLowerCase() === 't') {
+        this.toggleSidebar();
       }
     });
   }
 
   openModal(modal) {
     modal.classList.add('active');
-    soundFx.playClick();
   }
 
   closeModal(modal) {
     modal.classList.remove('active');
-    soundFx.playClick();
   }
 
   openExportModal() {
@@ -510,6 +488,7 @@ class CarColoringApp {
 
   updateUI() {
     this.setTool('brush');
+    this.setBrushSizePreset(18);
   }
 }
 

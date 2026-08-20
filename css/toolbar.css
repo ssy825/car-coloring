@@ -1,10 +1,37 @@
-/* 툴바, 팔레트, 슬라이더 및 인터랙티브 UI 컴포넌트 스타일 */
+/* 툴바, 좌측 통합 패널, 브러시 프리셋, 팔레트 스타일 */
 
-/* 로고 및 앱 타이틀 */
+/* 로고 및 사이드바 토글 */
 .brand-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.sidebar-toggle-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: var(--transition-fast);
+}
+
+.sidebar-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--primary);
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.sidebar-toggle-btn.active {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 .brand-logo {
@@ -13,13 +40,13 @@
   gap: 8px;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   letter-spacing: -0.5px;
   color: #ffffff;
 }
 
 .brand-logo .logo-icon {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   filter: drop-shadow(0 0 8px var(--primary-glow));
 }
 
@@ -38,8 +65,8 @@
 .current-car-info-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.3);
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.35);
   border: 1px solid var(--border-glass);
   padding: 4px 12px;
   border-radius: var(--radius-full);
@@ -49,7 +76,7 @@
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 50%;
@@ -76,7 +103,7 @@
 }
 
 .car-title-group h2 {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text-main);
   letter-spacing: -0.3px;
@@ -84,44 +111,9 @@
 }
 
 .car-count-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-dim);
   font-weight: 600;
-}
-
-.spen-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  color: var(--primary);
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  transition: var(--transition-fast);
-}
-
-.spen-badge:hover {
-  background: rgba(0, 240, 255, 0.2);
-  border-color: var(--primary);
-  transform: translateY(-1px);
-}
-
-.spen-badge.eraser-mode {
-  background: rgba(255, 45, 85, 0.2);
-  border-color: var(--accent);
-  color: #ffffff;
-  box-shadow: 0 0 12px var(--accent-glow);
-  animation: pulse 1s infinite alternate;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.04); }
 }
 
 /* 상단 우측 액션 버튼 그룹 */
@@ -135,13 +127,13 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-glass);
   color: var(--text-main);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   cursor: pointer;
   transition: var(--transition-fast);
 }
@@ -157,7 +149,7 @@
 }
 
 .icon-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
@@ -166,9 +158,9 @@
   color: #0d0f14;
   border: none;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   padding: 0 14px;
-  height: 38px;
+  height: 36px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -183,72 +175,89 @@
   transform: translateY(-1px);
 }
 
-/* 좌측 도구 버튼들 */
-.tool-btn {
-  width: 72px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid transparent;
+/* 좌측 통합 사이드바 섹션 & 패널 */
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 10px;
   border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.panel-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
   color: var(--text-muted);
+}
+
+.current-size-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(0, 240, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* 1. 메인 3대 도구 선택기 (페인트, 브러시, 지우개) */
+.tools-segmented-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-glass);
+}
+
+.main-tool-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  padding: 8px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
   transition: var(--transition-fast);
 }
 
-.tool-btn .tool-icon {
-  font-size: 1.45rem;
+.main-tool-btn .tool-icon {
+  font-size: 1.25rem;
   line-height: 1;
 }
 
-.tool-btn .tool-label {
-  font-size: 0.72rem;
+.main-tool-btn .tool-label {
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: -0.2px;
 }
 
-.tool-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+.main-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
 }
 
-.tool-btn.active {
-  background: rgba(0, 240, 255, 0.12);
+.main-tool-btn.active {
+  background: rgba(0, 240, 255, 0.15);
   border-color: var(--border-active);
   color: var(--primary);
-  box-shadow: 0 0 12px var(--primary-glow);
+  box-shadow: 0 0 10px var(--primary-glow);
 }
 
-.tool-btn.active .tool-icon {
-  filter: drop-shadow(0 0 6px var(--primary-glow));
-}
-
-.tool-divider {
-  width: 80%;
-  height: 1px;
-  background: var(--border-glass);
-  margin: 4px 0;
-}
-
-/* 브러시 종류 & 서브 설정 패널 */
-.panel-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.panel-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-dim);
-}
-
+/* 2. 브러시 종류 (6종 그리드) */
 .brush-types-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -256,11 +265,11 @@
 }
 
 .brush-type-btn {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  padding: 8px 6px;
+  padding: 7px 6px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -269,11 +278,11 @@
 }
 
 .brush-type-btn .brush-icon {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .brush-type-btn .brush-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
 }
 
@@ -288,52 +297,60 @@
   color: var(--primary);
 }
 
-/* 슬라이더 컨트롤 */
-.slider-group {
-  display: flex;
-  flex-direction: column;
+/* 3. 브러시 굵기 5단계 원클릭 프리셋 버튼 */
+.brush-sizes-preset-group {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 
-.slider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
+.size-preset-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
-  font-weight: 600;
-}
-
-.slider-val {
-  color: var(--primary);
-  font-weight: 700;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--primary);
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.size-preset-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.size-preset-btn.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: var(--primary);
+  color: var(--primary);
   box-shadow: 0 0 10px var(--primary-glow);
-  transition: transform 0.1s;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+.size-dot {
+  background-color: currentColor;
+  border-radius: 50%;
+  display: inline-block;
 }
 
-/* 팔레트 테마 탭 */
+.dot-xs { width: 4px; height: 4px; }
+.dot-s  { width: 8px; height: 8px; }
+.dot-m  { width: 13px; height: 13px; }
+.dot-l  { width: 18px; height: 18px; }
+.dot-xl { width: 24px; height: 24px; }
+
+.size-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* 4. 팔레트 테마 탭 */
 .palette-tabs-container {
   display: flex;
   gap: 4px;
@@ -346,14 +363,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border: 1px solid var(--border-glass);
   color: var(--text-muted);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  font-size: 0.72rem;
+  padding: 5px 8px;
+  font-size: 0.68rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   transition: var(--transition-fast);
 }
 
@@ -368,11 +385,11 @@ input[type="range"]::-webkit-slider-thumb:hover {
   color: var(--primary);
 }
 
-/* 컬러 칩 그리드 */
+/* 컬러 칩 그리드 (5열) */
 .colors-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .color-chip {
@@ -391,27 +408,28 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .color-chip.active {
   border-color: #ffffff;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
-  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  transform: scale(1.08);
 }
 
-/* 커스텀 컬러 피커 바 */
+/* 5. 커스텀 컬러 피커 바 */
 .custom-color-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
   border: 1px solid var(--border-glass);
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
 }
 
 .active-color-preview-box {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid #ffffff;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 .custom-picker-btn-wrap {
@@ -436,8 +454,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   gap: 6px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
-  font-size: 0.75rem;
+  padding: 6px 8px;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-main);
   pointer-events: none;
@@ -446,13 +464,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* 최근 사용한 색상 */
 .recent-colors-grid {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .recent-color-chip {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
@@ -461,40 +479,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .recent-color-chip:hover {
   transform: scale(1.2);
-}
-
-/* 스티커 목록 */
-.stickers-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.sticker-item-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-sm);
-  padding: 6px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition-fast);
-}
-
-.sticker-item-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-}
-
-.sticker-item-btn.active {
-  background: rgba(0, 240, 255, 0.15);
-  border-color: var(--primary);
-  color: var(--primary);
 }
 
 /* 캔버스 플로팅 줌 컨트롤 */
