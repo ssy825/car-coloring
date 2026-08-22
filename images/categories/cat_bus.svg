@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(70, 270) scale(0.85)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 60 480 L 60 170 Q 60 140 100 140 L 780 140 Q 820 140 860 180 L 920 280 L 940 320 Q 950 360 950 420 L 950 480 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Main Bus Body (Bright Classic School/Transit Yellow) -->
+    <path d="M 80 160 L 790 160 Q 820 160 850 200 L 910 300 Q 930 340 930 400 L 930 480 L 820 480 A 100 100 0 0 0 620 480 L 380 480 A 100 100 0 0 0 180 480 L 80 480 Z"
+          fill="#ecc94b" stroke="#111" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Black Safety Rub Rails (3 Stripes) -->
+    <line x1="80" y1="360" x2="920" y2="360" stroke="#1a202c" stroke-width="10"/>
+    <line x1="80" y1="410" x2="925" y2="410" stroke="#1a202c" stroke-width="10"/>
+    <line x1="80" y1="450" x2="925" y2="450" stroke="#1a202c" stroke-width="10"/>
+
+    <!-- Bus Windows Row -->
+    <rect x="100" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <rect x="200" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <rect x="300" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <rect x="400" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <rect x="500" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <rect x="600" y="200" width="80" height="90" rx="8" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <!-- Windshield / Passenger Door -->
+    <path d="M 700 200 L 800 200 L 870 310 L 700 310 Z" fill="#4a5568" stroke="#111" stroke-width="8"/>
+
+    <!-- Front Grille & Bumper -->
+    <rect x="880" y="380" width="50" height="70" rx="6" fill="#cbd5e0" stroke="#111" stroke-width="8"/>
+    <rect x="910" y="400" width="25" height="25" rx="6" fill="#f6ad55" stroke="#111" stroke-width="6"/> <!-- Headlight -->
+    <rect x="60" y="460" width="890" height="25" rx="6" fill="#1a202c" stroke="#111" stroke-width="6"/>
+
+    <!-- Warning Flasher Lights on Roof -->
+    <circle cx="120" cy="150" r="14" fill="#e53e3e" stroke="#111" stroke-width="6"/>
+    <circle cx="800" cy="150" r="14" fill="#e53e3e" stroke="#111" stroke-width="6"/>
+    <circle cx="840" cy="160" r="14" fill="#ecc94b" stroke="#111" stroke-width="6"/>
+
+    <!-- Wheels (Rear) -->
+    <g transform="translate(280, 480)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="55" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <line x1="-38" y1="0" x2="38" y2="0" stroke="#111" stroke-width="8"/>
+      <line x1="0" y1="-38" x2="0" y2="38" stroke="#111" stroke-width="8"/>
+    </g>
+
+    <!-- Wheels (Front) -->
+    <g transform="translate(720, 480)">
+      <circle cx="0" cy="0" r="95" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="55" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="24" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <line x1="-38" y1="0" x2="38" y2="0" stroke="#111" stroke-width="8"/>
+      <line x1="0" y1="-38" x2="0" y2="38" stroke="#111" stroke-width="8"/>
+    </g>
+  </g>
+</svg>

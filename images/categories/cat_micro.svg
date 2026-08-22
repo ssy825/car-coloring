@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" fill="#12151c"/>
+  <g transform="translate(100, 270) scale(0.82)">
+    <!-- Outer Sticker White Contour -->
+    <path d="M 120 480 L 120 380 L 320 380 L 460 220 L 680 180 L 740 260 L 880 380 L 880 480 Z"
+          fill="none" stroke="#ffffff" stroke-width="32" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Motorcycle Frame & Body (Vibrant Cyan & Dark) -->
+    <!-- Fuel Tank & Seat -->
+    <path d="M 320 340 L 440 260 L 620 260 L 660 330 L 420 380 Z" fill="#00f0ff" stroke="#111" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M 300 340 L 420 340 L 380 400 L 260 380 Z" fill="#1a202c" stroke="#111" stroke-width="10" stroke-linejoin="round"/> <!-- Rider Seat -->
+
+    <!-- Handlebars & Front Fork -->
+    <line x1="600" y1="260" x2="680" y2="180" stroke="#111" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="680" cy="180" r="16" fill="#ecc94b" stroke="#111" stroke-width="8"/> <!-- Grip/Mirror -->
+    <line x1="610" y1="270" x2="750" y2="480" stroke="#a0aec0" stroke-width="16" stroke-linecap="round"/> <!-- Fork -->
+
+    <!-- Headlight & Front Fairing -->
+    <polygon points="630,260 700,280 670,330 610,310" fill="#00f0ff" stroke="#111" stroke-width="8"/>
+    <polygon points="680,280 720,290 690,320" fill="#ffd60a" stroke="#111" stroke-width="6"/>
+
+    <!-- Engine & Exhaust Pipe -->
+    <rect x="420" y="380" width="130" height="100" rx="14" fill="#4a5568" stroke="#111" stroke-width="12"/>
+    <circle cx="485" cy="430" r="32" fill="#2d3748" stroke="#111" stroke-width="8"/>
+    <path d="M 450 460 L 340 460 L 220 420" fill="none" stroke="#cbd5e0" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/> <!-- Exhaust Pipe -->
+
+    <!-- Rear Swingarm & Shock -->
+    <line x1="420" y1="440" x2="250" y2="480" stroke="#111" stroke-width="16" stroke-linecap="round"/>
+    <line x1="380" y1="360" x2="320" y2="450" stroke="#e53e3e" stroke-width="12" stroke-linecap="round"/> <!-- Mono Shock -->
+
+    <!-- Rear Wheel -->
+    <g transform="translate(250, 480)">
+      <circle cx="0" cy="0" r="105" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="65" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="28" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <!-- Spokes (3-Spoke Sport Rim) -->
+      <line x1="0" y1="0" x2="0" y2="-52" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="0" x2="45" y2="26" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="0" x2="-45" y2="26" stroke="#111" stroke-width="10"/>
+      <!-- Brake Disc -->
+      <circle cx="0" cy="0" r="42" fill="none" stroke="#718096" stroke-width="6" stroke-dasharray="8 6"/>
+    </g>
+
+    <!-- Front Wheel -->
+    <g transform="translate(750, 480)">
+      <circle cx="0" cy="0" r="105" fill="#1a202c" stroke="#111" stroke-width="14"/>
+      <circle cx="0" cy="0" r="65" fill="#cbd5e0" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="28" fill="#4a5568" stroke="#111" stroke-width="8"/>
+      <line x1="0" y1="0" x2="0" y2="-52" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="0" x2="45" y2="26" stroke="#111" stroke-width="10"/>
+      <line x1="0" y1="0" x2="-45" y2="26" stroke="#111" stroke-width="10"/>
+      <circle cx="0" cy="0" r="42" fill="none" stroke="#718096" stroke-width="6" stroke-dasharray="8 6"/>
+    </g>
+  </g>
+</svg>
