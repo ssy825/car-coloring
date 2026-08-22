@@ -100,14 +100,23 @@ class StorageManager {
   }
 
   /**
+   * 예약된 자동 저장 타이머 취소
+   */
+  cancelAutoSave(carId) {
+    if (!carId) return;
+    if (this.debounceTimers.has(carId)) {
+      clearTimeout(this.debounceTimers.get(carId));
+      this.debounceTimers.delete(carId);
+    }
+  }
+
+  /**
    * 디바운스된 자동 저장 (드로잉 도중 메인 스레드 멈춤 방지)
    */
   scheduleAutoSave(carId, paintCanvas, lineCanvas, delay = 600) {
     if (!carId || !paintCanvas) return;
 
-    if (this.debounceTimers.has(carId)) {
-      clearTimeout(this.debounceTimers.get(carId));
-    }
+    this.cancelAutoSave(carId);
 
     const timer = setTimeout(async () => {
       this.debounceTimers.delete(carId);
@@ -118,15 +127,21 @@ class StorageManager {
   }
 
   /**
+   * 대기 중인 저장을 즉시 완료 (도안 전환/모달 열기 전 동기화)
+   */
+  async flushAutoSave(carId, paintCanvas, lineCanvas) {
+    if (!carId || !paintCanvas) return null;
+    this.cancelAutoSave(carId);
+    return await this.saveCarWork(carId, paintCanvas, lineCanvas);
+  }
+
+  /**
    * 자동차 도안 채색 작업 즉시 저장
    */
   async saveCarWork(carId, paintCanvas, lineCanvas) {
     if (!carId || !paintCanvas) return null;
 
-    if (this.debounceTimers.has(carId)) {
-      clearTimeout(this.debounceTimers.get(carId));
-      this.debounceTimers.delete(carId);
-    }
+    this.cancelAutoSave(carId);
 
     const hasDrawing = this.hasActualDrawing(paintCanvas);
 
@@ -227,6 +242,7 @@ class StorageManager {
   async deleteCarWork(carId) {
     if (!carId) return;
 
+    this.cancelAutoSave(carId);
     this.cachedMeta.delete(carId);
 
     try {
@@ -249,6 +265,41 @@ class StorageManager {
       }
     } catch (e) {
       console.warn('IndexedDB delete failed:', e);
+    }
+  }
+
+  /**
+   * 모든 도안 작업 전체 삭제 및 초기화
+   */
+  async clearAllWorks() {
+    this.debounceTimers.forEach((timer) => clearTimeout(timer));
+    this.debounceTimers.clear();
+    this.cachedMeta.clear();
+
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('car_meta_') || key.startsWith('car_art_'))) {
+          localStorage.removeItem(key);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    try {
+      await this.dbPromise;
+      if (this.db) {
+        await new Promise((resolve, reject) => {
+          const tx = this.db.transaction(STORE_NAME, 'readwrite');
+          const store = tx.objectStore(STORE_NAME);
+          store.clear();
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+      }
+    } catch (e) {
+      console.warn('IndexedDB clear failed:', e);
     }
   }
 

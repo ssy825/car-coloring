@@ -132,7 +132,9 @@ class CarColoringApp {
       },
       onDeleteWork: async (carId, originalIdx) => {
         if (this.currentCarIndex === originalIdx && this.canvasEngine) {
-          await this.canvasEngine.clearPaint();
+          this.canvasEngine.paintCtx.clearRect(0, 0, this.canvasEngine.width, this.canvasEngine.height);
+          this.canvasEngine.historyManager.clear();
+          this.canvasEngine.historyManager.saveSnapshot(this.canvasEngine.paintCtx, this.canvasEngine.width, this.canvasEngine.height);
         }
       }
     });
@@ -140,8 +142,8 @@ class CarColoringApp {
 
   async loadCarByIndex(index) {
     if (index < 0 || index >= CARS_DATA.length) return;
-    if (this.canvasEngine && this.canvasEngine.currentCar) {
-      await this.canvasEngine.autoSave();
+    if (this.canvasEngine) {
+      await this.canvasEngine.flushSave();
     }
 
     this.currentCarIndex = index;
@@ -378,17 +380,17 @@ class CarColoringApp {
     });
 
     // 이전/다음 자동차 도안 내비게이션
-    document.getElementById('btn-prev-car').addEventListener('click', () => {
+    document.getElementById('btn-prev-car').addEventListener('click', async () => {
       let nextIdx = this.currentCarIndex - 1;
       if (nextIdx < 0) nextIdx = CARS_DATA.length - 1;
-      this.loadCarByIndex(nextIdx);
+      await this.loadCarByIndex(nextIdx);
       soundFx.playClick();
     });
 
-    document.getElementById('btn-next-car').addEventListener('click', () => {
+    document.getElementById('btn-next-car').addEventListener('click', async () => {
       let nextIdx = this.currentCarIndex + 1;
       if (nextIdx >= CARS_DATA.length) nextIdx = 0;
-      this.loadCarByIndex(nextIdx);
+      await this.loadCarByIndex(nextIdx);
       soundFx.playClick();
     });
 
@@ -407,8 +409,8 @@ class CarColoringApp {
 
     // 모달 열기
     this.btnCarsModal.addEventListener('click', async () => {
-      if (this.canvasEngine && this.canvasEngine.currentCar) {
-        await this.canvasEngine.autoSave();
+      if (this.canvasEngine) {
+        await this.canvasEngine.flushSave();
       }
       await this.galleryController.renderCategoryTabs();
       await this.galleryController.renderGallery();

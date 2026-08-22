@@ -399,17 +399,19 @@
   font-weight: 700;
   text-transform: uppercase;
   color: #fff;
+  background: rgba(30, 34, 45, 0.85);
   backdrop-filter: blur(4px);
   z-index: 2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-.car-badge.supercar { background: rgba(255, 45, 85, 0.85); }
-.car-badge.sports { background: rgba(0, 240, 255, 0.85); color: #000; }
-.car-badge.sedan { background: rgba(94, 92, 230, 0.85); }
-.car-badge.special { background: rgba(255, 149, 0, 0.85); }
-.car-badge.offroad { background: rgba(52, 199, 89, 0.85); }
-.car-badge.commercial { background: rgba(175, 82, 222, 0.85); }
-.car-badge.heavy { background: rgba(255, 204, 0, 0.85); color: #000; }
+.car-badge.sedan { background: rgba(94, 92, 230, 0.9); color: #fff; }
+.car-badge.suv_mpv { background: rgba(48, 209, 88, 0.9); color: #000; }
+.car-badge.sports { background: rgba(0, 240, 255, 0.9); color: #000; }
+.car-badge.truck { background: rgba(255, 159, 10, 0.9); color: #000; }
+.car-badge.bus { background: rgba(255, 214, 10, 0.9); color: #000; }
+.car-badge.special { background: rgba(255, 69, 58, 0.9); color: #fff; }
+.car-badge.micro { background: rgba(191, 90, 242, 0.9); color: #fff; }
 
 .car-card-info {
   padding: 12px 14px;

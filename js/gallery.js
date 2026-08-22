@@ -34,7 +34,7 @@ export class GalleryController {
     this.categoryTabsContainer.innerHTML = '';
 
     await this.refreshMeta();
-    const inProgressCount = Object.keys(this.allWorksMeta).filter(id => this.allWorksMeta[id]?.hasDrawing).length;
+    const inProgressCount = CARS_DATA.filter(car => this.allWorksMeta[car.id]?.hasDrawing).length;
 
     const tabList = [];
     if (inProgressCount > 0) {
@@ -174,6 +174,8 @@ export class GalleryController {
           const carName = deleteBtn.dataset.carName;
           const carId = deleteBtn.dataset.carId;
           if (confirm(`'${carName}' 도안의 채색 내용을 삭제하고 초기화하시겠습니까?`)) {
+            // 항상 storageManager에서 직접 데이터 삭제
+            await storageManager.deleteCarWork(carId);
             if (this.onDeleteWork) {
               await this.onDeleteWork(carId, originalIdx);
             }

@@ -163,9 +163,24 @@ export class CanvasEngine {
   }
 
   /**
+   * 대기 중인 채색 작업 즉시 저장
+   */
+  async flushSave() {
+    if (this.currentCar && this.paintCanvas) {
+      return await storageManager.flushAutoSave(this.currentCar.id, this.paintCanvas, this.lineCanvas);
+    }
+    return null;
+  }
+
+  /**
    * 자동차 도안 이미지 로드
    */
   async loadCar(car) {
+    // 1. 기존 작업 중인 도안이 있다면 즉시 저장 완료
+    if (this.currentCar && this.paintCanvas) {
+      await storageManager.flushAutoSave(this.currentCar.id, this.paintCanvas, this.lineCanvas);
+    }
+
     this.currentCar = car;
     this.clearAll();
 
@@ -188,9 +203,9 @@ export class CanvasEngine {
         // 저장된 채색 데이터 복원 시도
         await this.loadSavedProgress(car.id);
 
-        // 초기 상태 히스토리 저장
+        // 초기 상태 히스토리 스냅샷 생성 (불필요한 autoSave 트리거 방지)
         this.historyManager.clear();
-        this.saveHistory();
+        this.historyManager.saveSnapshot(this.paintCtx, this.width, this.height);
 
         this.fitCanvasToContainer();
         resolve();
@@ -497,9 +512,11 @@ export class CanvasEngine {
   async clearPaint() {
     this.paintCtx.clearRect(0, 0, this.width, this.height);
     if (this.currentCar) {
+      storageManager.cancelAutoSave(this.currentCar.id);
       await storageManager.deleteCarWork(this.currentCar.id);
     }
-    this.saveHistory();
+    this.historyManager.clear();
+    this.historyManager.saveSnapshot(this.paintCtx, this.width, this.height);
   }
 
   clearAll() {
