@@ -45,7 +45,7 @@ export const CARS_DATA = [
     difficulty: '보통',
     description: '우아한 곡선미와 폭발적인 성능을 결합한 럭셔리 그랜드 투어러',
     image: 'images/cars/sports/mercedes.jpg',
-    defaultColor: '#silver',
+    defaultColor: '#c0c0c0',
     accentColor: '#5e5ce6'
   },
   {

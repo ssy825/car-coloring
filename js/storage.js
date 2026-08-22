@@ -1,4 +1,7 @@
-// IndexedDB & LocalStorage 기반 자동차 색칠 데이터 스토리지 매니저
+/**
+ * IndexedDB & LocalStorage 기반 자동차 색칠 데이터 스토리지 매니저 (StorageManager)
+ * 비동기 디바운스 자동 저장, 고속 메타데이터 캐시, 썸네일 생성 및 복원 기능을 제공합니다.
+ */
 
 const DB_NAME = 'CarColoringStudioDB';
 const DB_VERSION = 1;
@@ -8,7 +11,8 @@ class StorageManager {
   constructor() {
     this.db = null;
     this.dbPromise = this.initDB();
-    this.cachedMeta = new Map(); // carId -> meta
+    this.cachedMeta = new Map();
+    this.debounceTimers = new Map();
   }
 
   async initDB() {
@@ -16,7 +20,7 @@ class StorageManager {
       return null;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onupgradeneeded = event => {
@@ -32,7 +36,7 @@ class StorageManager {
       };
 
       request.onerror = event => {
-        console.error('IndexedDB open error:', event.target.error);
+        console.warn('IndexedDB open error, using LocalStorage fallback:', event.target.error);
         resolve(null);
       };
     });
@@ -52,14 +56,18 @@ class StorageManager {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, width, height);
 
-      // 2. 페인트 레이어 리스케일링 렌더
-      ctx.drawImage(paintCanvas, 0, 0, width, height);
+      // 2. 페인트 레이어 리스케일링
+      if (paintCanvas) {
+        ctx.drawImage(paintCanvas, 0, 0, width, height);
+      }
 
-      // 3. 도안 외곽선 레이어 multiply 합성
-      ctx.save();
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.drawImage(lineCanvas, 0, 0, width, height);
-      ctx.restore();
+      // 3. 도안 외곽선 Multiply 합성
+      if (lineCanvas) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(lineCanvas, 0, 0, width, height);
+        ctx.restore();
+      }
 
       return thumbCanvas.toDataURL('image/jpeg', 0.85);
     } catch (e) {
@@ -69,14 +77,16 @@ class StorageManager {
   }
 
   /**
-   * 캔버스에 실제 채색된 픽셀이 있는지 확인 (완전 빈 캔버스 판별)
+   * 캔버스에 실제 채색된 픽셀이 있는지 고속 샘플링 검사
    */
   hasActualDrawing(paintCanvas) {
+    if (!paintCanvas) return false;
     try {
       const ctx = paintCanvas.getContext('2d', { willReadFrequently: true });
       const imgData = ctx.getImageData(0, 0, paintCanvas.width, paintCanvas.height);
       const data = imgData.data;
-      // 16픽셀 단위 샘플링 검사로 고속 판별
+
+      // 16픽셀 간격 샘플링 검사
       const step = 4 * 16;
       for (let i = 3; i < data.length; i += step) {
         if (data[i] > 10) {
@@ -90,14 +100,37 @@ class StorageManager {
   }
 
   /**
-   * 자동차 도안 채색 작업 저장
+   * 디바운스된 자동 저장 (드로잉 도중 메인 스레드 멈춤 방지)
+   */
+  scheduleAutoSave(carId, paintCanvas, lineCanvas, delay = 600) {
+    if (!carId || !paintCanvas) return;
+
+    if (this.debounceTimers.has(carId)) {
+      clearTimeout(this.debounceTimers.get(carId));
+    }
+
+    const timer = setTimeout(async () => {
+      this.debounceTimers.delete(carId);
+      await this.saveCarWork(carId, paintCanvas, lineCanvas);
+    }, delay);
+
+    this.debounceTimers.set(carId, timer);
+  }
+
+  /**
+   * 자동차 도안 채색 작업 즉시 저장
    */
   async saveCarWork(carId, paintCanvas, lineCanvas) {
     if (!carId || !paintCanvas) return null;
 
+    if (this.debounceTimers.has(carId)) {
+      clearTimeout(this.debounceTimers.get(carId));
+      this.debounceTimers.delete(carId);
+    }
+
     const hasDrawing = this.hasActualDrawing(paintCanvas);
 
-    // 채색된 내용이 없으면 기존 작업 삭제 처리
+    // 채색 내용이 없으면 기존 작업 삭제
     if (!hasDrawing) {
       await this.deleteCarWork(carId);
       return null;
@@ -131,7 +164,7 @@ class StorageManager {
       console.warn('IndexedDB save failed, using LocalStorage:', e);
     }
 
-    // 2. LocalStorage 메타데이터 및 썸네일 캐시 (빠른 동기 조회를 위함)
+    // 2. LocalStorage 메타데이터 캐시
     try {
       const meta = { carId, thumbDataUrl, updatedAt, hasDrawing: true };
       localStorage.setItem(`car_meta_${carId}`, JSON.stringify(meta));
@@ -144,7 +177,7 @@ class StorageManager {
   }
 
   /**
-   * 특정 도안의 채색 데이터 불러오기
+   * 특정 도안 채색 작업 불러오기
    */
   async loadCarWork(carId) {
     if (!carId) return null;
@@ -161,7 +194,7 @@ class StorageManager {
           req.onerror = () => reject(req.error);
         });
 
-        if (result && result.fullDataUrl) {
+        if (result && (result.fullDataUrl || result.thumbDataUrl)) {
           return result;
         }
       }
@@ -169,7 +202,7 @@ class StorageManager {
       console.warn('IndexedDB load failed:', e);
     }
 
-    // 2. 구형 LocalStorage 데이터 마이그레이션 및 폴백 조회
+    // 2. LocalStorage 폴백 조회
     try {
       const legacy = localStorage.getItem(`car_art_${carId}`);
       if (legacy) {
@@ -189,7 +222,7 @@ class StorageManager {
   }
 
   /**
-   * 특정 도안 채색 작업 삭제 및 초기화
+   * 도안 작업 삭제 및 초기화
    */
   async deleteCarWork(carId) {
     if (!carId) return;
@@ -308,11 +341,9 @@ class StorageManager {
     if (hours < 24) return `${hours}시간 전`;
 
     const days = Math.floor(hours / 24);
-    if (days === 1) return '어제';
-    if (days < 7) return `${days}일 전`;
+    if (days < 30) return `${days}일 전`;
 
-    const date = new Date(timestamp);
-    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+    return '오래 전';
   }
 }
 

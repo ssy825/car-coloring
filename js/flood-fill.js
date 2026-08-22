@@ -1,12 +1,29 @@
-// 고속 스마트 플러드 필 (Flood Fill / 페인트통) 모듈
+/**
+ * 고속 스마트 플러드 필 (High-Performance Smart Flood Fill / 페인트통) 모듈
+ * 버퍼 재사용 풀링과 최적화된 픽셀 탐색 및 외곽선 안티앨리어싱 확장을 제공합니다.
+ */
+
+// 메모리 재할당(GC Thrashing) 방지를 위한 버퍼 풀
+let _cachedSize = 0;
+let _visited = null;
+let _queue = null;
+
+function ensureBuffers(totalPixels) {
+  if (_cachedSize < totalPixels) {
+    _cachedSize = totalPixels;
+    _visited = new Uint8Array(totalPixels);
+    _queue = new Int32Array(totalPixels * 2);
+  } else {
+    _visited.fill(0);
+  }
+  return { visited: _visited, queue: _queue };
+}
 
 /**
- * 픽셀 색상 차이 계산 (유클리드 거리 기반 또는 RGB 최대 차이)
+ * 픽셀 색상 차이 검사
  */
 function colorMatch(r1, g1, b1, a1, r2, g2, b2, a2, tolerance) {
-  // 투명도 차이
   if (Math.abs(a1 - a2) > tolerance) return false;
-  // RGB 유클리드 차이 (허용치 체크)
   const dr = r1 - r2;
   const dg = g1 - g2;
   const db = b1 - b2;
@@ -14,23 +31,22 @@ function colorMatch(r1, g1, b1, a1, r2, g2, b2, a2, tolerance) {
 }
 
 /**
- * 라인아트 픽셀이 외곽선(검은색/어두운 선)인지 여부 확인
+ * 라인아트 픽셀이 외곽선(검은색/어두운 경계선)인지 여부 확인
  */
 function isLineArtBoundary(r, g, b, a, darknessThreshold = 85) {
-  if (a < 50) return false; // 완전 투명은 경계 아님
-  // 상대 밝기 (Luminance)
+  if (a < 50) return false;
   const lum = 0.299 * r + 0.587 * g + 0.114 * b;
   return lum < darknessThreshold;
 }
 
 /**
  * 스마트 플러드 필 실행 함수
- * @param {CanvasRenderingContext2D} paintCtx - 사용자가 칠하는 채색 레이어 Context
- * @param {CanvasRenderingContext2D} lineCtx - 도안 외곽선 레이어 Context (경계 판정용)
+ * @param {CanvasRenderingContext2D} paintCtx - 사용자 채색 레이어 Context
+ * @param {CanvasRenderingContext2D} lineCtx - 도안 외곽선 레이어 Context
  * @param {number} startX - 클릭한 X 좌표
  * @param {number} startY - 클릭한 Y 좌표
  * @param {Object} fillColor - {r, g, b, a} (0~255)
- * @param {number} tolerance - 색상 오차 허용치 (기본값 40)
+ * @param {number} tolerance - 색상 오차 허용치 (기본값 42)
  */
 export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillColor, tolerance = 42) {
   const width = paintCtx.canvas.width;
@@ -43,7 +59,6 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
     return false;
   }
 
-  // Paint 레이어와 LineArt 레이어 픽셀 데이터 가져오기
   const paintImageData = paintCtx.getImageData(0, 0, width, height);
   const paintData = paintImageData.data;
 
@@ -52,7 +67,7 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
 
   const startIdx = (startY * width + startX) * 4;
 
-  // 시작 위치가 이미 도안의 굵은 검은색 외곽선 위라면 채우지 않음
+  // 시작 위치가 도안 외곽선(검은 경계선)이면 채우지 않음
   if (isLineArtBoundary(lineData[startIdx], lineData[startIdx + 1], lineData[startIdx + 2], lineData[startIdx + 3], 65)) {
     return false;
   }
@@ -67,7 +82,7 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
   const fillB = fillColor.b;
   const fillA = fillColor.a !== undefined ? fillColor.a : 255;
 
-  // 이미 같은 색상인 경우 즉시 리턴
+  // 이미 같은 색상인 경우 즉시 종료
   if (
     Math.abs(targetR - fillR) < 5 &&
     Math.abs(targetG - fillG) < 5 &&
@@ -77,9 +92,10 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
     return false;
   }
 
-  // 방문 여부 및 채울 픽셀 마스크 (Uint8Array)
-  const visited = new Uint8Array(width * height);
-  const queue = new Int32Array(width * height * 2);
+  // 버퍼 풀 확보
+  const totalPixels = width * height;
+  const { visited, queue } = ensureBuffers(totalPixels);
+
   let queueHead = 0;
   let queueTail = 0;
 
@@ -87,37 +103,36 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
   queue[queueTail++] = startY;
   visited[startY * width + startX] = 1;
 
-  // BFS 플러드 필 수행
+  // 고속 큐 기반 Flood Fill
   while (queueHead < queueTail) {
     const x = queue[queueHead++];
     const y = queue[queueHead++];
     const pixelIndex = y * width + x;
     const dataIdx = pixelIndex * 4;
 
-    // 채색 데이터 업데이트
     paintData[dataIdx] = fillR;
     paintData[dataIdx + 1] = fillG;
     paintData[dataIdx + 2] = fillB;
     paintData[dataIdx + 3] = fillA;
 
-    // 4방향 이웃 탐색 (상, 하, 좌, 우)
+    // 4방향 이웃 검사
     const neighbors = [
-      [x + 1, y],
-      [x - 1, y],
-      [x, y + 1],
-      [x, y - 1]
+      x + 1, y,
+      x - 1, y,
+      x, y + 1,
+      x, y - 1
     ];
 
-    for (let i = 0; i < 4; i++) {
-      const nx = neighbors[i][0];
-      const ny = neighbors[i][1];
+    for (let i = 0; i < 8; i += 2) {
+      const nx = neighbors[i];
+      const ny = neighbors[i + 1];
 
       if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
         const nIndex = ny * width + nx;
         if (!visited[nIndex]) {
           const nDataIdx = nIndex * 4;
 
-          // 1. 도안 외곽선 레이어에서 어두운 선(경계선)인지 검사
+          // 도안 외곽선 여부
           const isLine = isLineArtBoundary(
             lineData[nDataIdx],
             lineData[nDataIdx + 1],
@@ -127,7 +142,7 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
           );
 
           if (!isLine) {
-            // 2. 페인트 레이어에서 기존 목표 색상과 허용치 내에서 일치하는지 검사
+            // 페인트 레이어 목표 색상 일치 여부
             const isMatch = colorMatch(
               paintData[nDataIdx],
               paintData[nDataIdx + 1],
@@ -151,19 +166,16 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
     }
   }
 
-  // 1픽셀 안티앨리어싱 블렌드 확장 (White Halo 제거)
-  // 마스크 외곽 경계선 주변 픽셀을 반투명하게 살짝 확장하여 외곽선 아래로 안착시킴
+  // 안티앨리어싱 경계선 1px 확장 (White Halo 제거)
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const idx = y * width + x;
       if (visited[idx] === 1) {
-        // 주변 4방향 중 방문 안 된 픽셀 검사
         const adj = [idx + 1, idx - 1, idx + width, idx - width];
         for (let k = 0; k < 4; k++) {
           const aIdx = adj[k];
           if (visited[aIdx] === 0) {
             const nDataIdx = aIdx * 4;
-            // 라인아트가 아주 진한 검은색이 아니면 채색 색상으로 약간 덮어줌
             const isHeavyLine = isLineArtBoundary(
               lineData[nDataIdx],
               lineData[nDataIdx + 1],
@@ -183,7 +195,6 @@ export function performSmartFloodFill(paintCtx, lineCtx, startX, startY, fillCol
     }
   }
 
-  // 캔버스에 수정된 픽셀 버퍼 적용
   paintCtx.putImageData(paintImageData, 0, 0);
   return true;
 }

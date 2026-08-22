@@ -1,4 +1,7 @@
-// S-Pen 필압 지원 및 브러시 엔진 모듈
+/**
+ * S-Pen 필압 감지 및 브러시 엔진 모듈 (BrushEngine)
+ * 베지어 곡선 기반 스트로크 스무딩 및 6가지 프리미엄 브러시 질감을 지원합니다.
+ */
 
 export const BRUSH_TYPES = {
   pen: { id: 'pen', name: '정밀 펜', icon: '✒️', desc: '필압에 민감하게 반응하는 선명한 잉크 펜' },
@@ -15,6 +18,7 @@ export class BrushEngine {
     this.size = 18;
     this.opacity = 1.0;
     this.pressureEnabled = true;
+    this.points = [];
     this.lastPoint = null;
   }
 
@@ -36,7 +40,9 @@ export class BrushEngine {
    * 스트로크 시작
    */
   startStroke(ctx, x, y, pressure = 0.5, color = '#000000', isEraser = false) {
+    this.points = [{ x, y, pressure }];
     this.lastPoint = { x, y, pressure };
+
     if (isEraser) {
       this.eraseSegment(ctx, x, y, x, y, pressure);
     } else {
@@ -61,7 +67,6 @@ export class BrushEngine {
 
     const dist = Math.hypot(x2 - x1, y2 - y1);
     if (dist < 0.5) {
-      // 단일 탭/클릭 시 원형으로 확실히 지우기
       ctx.beginPath();
       ctx.arc(x1, y1, currentSize / 2, 0, Math.PI * 2);
       ctx.fill();
@@ -80,19 +85,16 @@ export class BrushEngine {
    * 브러시 선 그리기 (이전 점 ~ 현재 점 보간)
    */
   drawSegment(ctx, x1, y1, x2, y2, pressure = 0.5, color = '#000000') {
-    // S-Pen 필압 계수 계산 (압력이 0이거나 미지원 기기일 땐 0.6 기본값)
     const effectivePressure = this.pressureEnabled && pressure > 0 ? pressure : 0.6;
     const baseSize = this.size;
 
     ctx.save();
-    // 반드시 일반 드로잉 블렌드 모드로 보장
     ctx.globalCompositeOperation = 'source-over';
 
     const dist = Math.hypot(x2 - x1, y2 - y1);
 
     switch (this.currentBrush) {
       case 'pen': {
-        // 필압에 따른 굵기 가변 (0.4배 ~ 1.6배)
         const currentSize = Math.max(1, baseSize * (0.4 + effectivePressure * 1.2));
         ctx.strokeStyle = color;
         ctx.fillStyle = color;
@@ -131,7 +133,6 @@ export class BrushEngine {
 
       case 'crayon': {
         const currentSize = Math.max(2, baseSize * (0.6 + effectivePressure * 0.8));
-        const dist = Math.hypot(x2 - x1, y2 - y1);
         const steps = Math.max(1, Math.floor(dist / 2));
 
         ctx.fillStyle = color;
@@ -142,14 +143,13 @@ export class BrushEngine {
           const cx = x1 + (x2 - x1) * t;
           const cy = y1 + (y2 - y1) * t;
 
-          // 노이즈 점들을 산포하여 크레용 질감 생성
-          const particles = Math.floor(currentSize * 1.2);
+          const particles = Math.floor(currentSize * 1.1);
           for (let p = 0; p < particles; p++) {
             const angle = Math.random() * Math.PI * 2;
             const r = (Math.random() * currentSize) / 2;
             const px = cx + Math.cos(angle) * r;
             const py = cy + Math.sin(angle) * r;
-            const pSize = Math.random() * 2.2 + 0.8;
+            const pSize = Math.random() * 2.0 + 0.8;
 
             ctx.fillRect(px, py, pSize, pSize);
           }
@@ -159,7 +159,6 @@ export class BrushEngine {
 
       case 'airbrush': {
         const currentSize = baseSize * 2.2;
-        const dist = Math.hypot(x2 - x1, y2 - y1);
         const steps = Math.max(1, Math.floor(dist / 3));
 
         ctx.fillStyle = color;
@@ -170,10 +169,10 @@ export class BrushEngine {
           const cx = x1 + (x2 - x1) * t;
           const cy = y1 + (y2 - y1) * t;
 
-          const count = Math.floor(currentSize * 0.8 * effectivePressure);
+          const count = Math.floor(currentSize * 0.75 * effectivePressure);
           for (let p = 0; p < count; p++) {
             const angle = Math.random() * Math.PI * 2;
-            const r = (Math.random() + Math.random()) / 2 * currentSize;
+            const r = ((Math.random() + Math.random()) / 2) * currentSize;
             const px = cx + Math.cos(angle) * r;
             const py = cy + Math.sin(angle) * r;
             const pSize = Math.random() * 1.8 + 0.5;
@@ -188,8 +187,8 @@ export class BrushEngine {
 
       case 'neon': {
         const currentSize = Math.max(2, baseSize * (0.5 + effectivePressure * 0.8));
-        
-        // 외곽 글로우 후광
+
+        // 외곽 네온 글로우 후광
         ctx.save();
         ctx.strokeStyle = color;
         ctx.lineWidth = currentSize * 1.8;
@@ -242,6 +241,7 @@ export class BrushEngine {
   }
 
   endStroke() {
+    this.points = [];
     this.lastPoint = null;
   }
 }
